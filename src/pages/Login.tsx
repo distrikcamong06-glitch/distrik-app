@@ -56,7 +56,13 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-3 text-center text-sm">
+          <Link to="/forgot-password" className="font-medium text-slate-500">
+            Lupa password?
+          </Link>
+        </p>
+
+        <p className="mt-2 text-center text-sm text-slate-500">
           Belum punya akun?{' '}
           <Link to="/register" className="font-medium text-emerald-700">
             Daftar
