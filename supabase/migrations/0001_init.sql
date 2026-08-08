@@ -154,7 +154,14 @@ begin
   -- auth.uid() is null when the query runs outside a Supabase Auth session
   -- (SQL editor, direct psql, migrations) — that already requires full DB
   -- credentials, a higher trust level than the app's own RLS boundary.
-  if auth.uid() is null or public.is_admin() then
+  --
+  -- The bypass flag is set by the trusted RPCs below (redeem_reward,
+  -- admin_add_points, cancel_redemption) right before they touch a
+  -- protected field themselves — those functions already validated the
+  -- change, so the guard only needs to stop *unsanctioned* direct writes.
+  if auth.uid() is null
+     or public.is_admin()
+     or coalesce(current_setting('app.bypass_profile_guard', true), 'false') = 'true' then
     return new;
   end if;
 
@@ -216,6 +223,7 @@ begin
     raise exception 'amount too small to earn any points';
   end if;
 
+  perform set_config('app.bypass_profile_guard', 'true', true);
   update public.profiles
   set points_balance = points_balance + v_points
   where id = v_user_id;
@@ -258,6 +266,7 @@ begin
     raise exception 'insufficient points balance';
   end if;
 
+  perform set_config('app.bypass_profile_guard', 'true', true);
   update public.profiles
   set points_balance = points_balance - v_reward.point_cost
   where id = v_user_id;
@@ -328,6 +337,7 @@ begin
   end if;
 
   -- refund the points and the stock slot
+  perform set_config('app.bypass_profile_guard', 'true', true);
   update public.profiles set points_balance = points_balance + v_row.points_used where id = v_row.user_id;
   update public.rewards set stock = stock + 1 where id = v_row.reward_id and stock is not null;
 
