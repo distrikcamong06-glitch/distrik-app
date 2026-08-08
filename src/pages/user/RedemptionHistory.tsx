@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Redemption } from '../../types/database';
+import QrCode from '../../components/QrCode';
 
 const STATUS_LABEL: Record<Redemption['status'], string> = {
   pending: 'Menunggu diambil',
@@ -47,10 +48,13 @@ export default function RedemptionHistory() {
         <div className="flex flex-col gap-2">
           {redemptions.map((r) => (
             <div key={r.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-              <div>
-                <p className="text-sm font-medium text-slate-800">{r.rewards?.name}</p>
-                <p className="font-mono text-xs text-slate-400">{r.redeem_code}</p>
-                <p className="text-xs text-slate-400">{new Date(r.created_at).toLocaleString('id-ID')}</p>
+              <div className="flex items-center gap-3">
+                {r.status === 'pending' && <QrCode value={r.redeem_code} size={48} />}
+                <div>
+                  <p className="text-sm font-medium text-slate-800">{r.rewards?.name}</p>
+                  <p className="font-mono text-xs text-slate-400">{r.redeem_code}</p>
+                  <p className="text-xs text-slate-400">{new Date(r.created_at).toLocaleString('id-ID')}</p>
+                </div>
               </div>
               <div className="text-right">
                 <p className="text-sm font-semibold text-slate-700">{r.points_used} poin</p>

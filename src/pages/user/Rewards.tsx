@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Reward } from '../../types/database';
+import RedeemSuccessModal from '../../components/RedeemSuccessModal';
 
 export default function Rewards() {
   const { profile, refreshProfile } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<{ rewardName: string; redeemCode: string } | null>(null);
 
   const loadRewards = async () => {
     setLoading(true);
@@ -26,20 +28,17 @@ export default function Rewards() {
   }, []);
 
   const handleRedeem = async (reward: Reward) => {
-    setMessage(null);
+    setError(null);
     setRedeemingId(reward.id);
     const { data, error } = await supabase.rpc('redeem_reward', { p_reward_id: reward.id });
     setRedeemingId(null);
 
     if (error) {
-      setMessage({ type: 'error', text: error.message });
+      setError(error.message);
       return;
     }
 
-    setMessage({
-      type: 'success',
-      text: `Berhasil! Tunjukkan kode ${data.redeem_code} ke admin di toko untuk ambil reward.`,
-    });
+    setSuccess({ rewardName: reward.name, redeemCode: data.redeem_code });
     await Promise.all([loadRewards(), refreshProfile()]);
   };
 
@@ -52,15 +51,7 @@ export default function Rewards() {
         <p className="text-sm text-slate-500">Saldo kamu: {profile.points_balance} poin</p>
       </div>
 
-      {message && (
-        <p
-          className={`rounded-lg px-3 py-2 text-sm ${
-            message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
-          }`}
-        >
-          {message.text}
-        </p>
-      )}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       {loading ? (
         <p className="text-sm text-slate-400">Memuat reward...</p>
@@ -97,6 +88,14 @@ export default function Rewards() {
             );
           })}
         </div>
+      )}
+
+      {success && (
+        <RedeemSuccessModal
+          rewardName={success.rewardName}
+          redeemCode={success.redeemCode}
+          onClose={() => setSuccess(null)}
+        />
       )}
     </div>
   );

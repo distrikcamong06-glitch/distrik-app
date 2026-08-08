@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { Redemption, RedemptionStatus } from '../../types/database';
+import QrScanner from '../../components/QrScanner';
+import Icon from '../../components/Icon';
 
 const STATUS_LABEL: Record<RedemptionStatus, string> = {
   pending: 'Menunggu diambil',
@@ -13,6 +15,7 @@ export default function RedemptionsAdmin() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<RedemptionStatus | 'all'>('pending');
   const [code, setCode] = useState('');
+  const [scanning, setScanning] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -33,13 +36,12 @@ export default function RedemptionsAdmin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const findByCode = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const lookupCode = async (rawCode: string) => {
     setMessage(null);
     const { data } = await supabase
       .from('redemptions')
       .select('*, rewards(name, image_url), profiles(name, member_code)')
-      .eq('redeem_code', code.trim().toUpperCase())
+      .eq('redeem_code', rawCode.trim().toUpperCase())
       .maybeSingle();
     if (!data) {
       setMessage('Kode penukaran tidak ditemukan.');
@@ -47,6 +49,17 @@ export default function RedemptionsAdmin() {
     }
     setRedemptions([data as Redemption]);
     setFilter('all');
+  };
+
+  const findByCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await lookupCode(code);
+  };
+
+  const handleScan = async (scannedCode: string) => {
+    setScanning(false);
+    setCode(scannedCode);
+    await lookupCode(scannedCode);
   };
 
   const confirm = async (id: string) => {
@@ -78,17 +91,30 @@ export default function RedemptionsAdmin() {
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold text-slate-800">Konfirmasi Penukaran</h1>
 
-      <form onSubmit={findByCode} className="flex gap-2">
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Cari kode penukaran..."
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-        />
-        <button type="submit" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white">
-          Cari
+      <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4">
+        <button
+          type="button"
+          onClick={() => setScanning((s) => !s)}
+          className="flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 py-2 text-sm font-medium text-emerald-700"
+        >
+          <Icon name="ScanLine" size={16} />
+          {scanning ? 'Tutup Scanner' : 'Scan Barcode Penukaran'}
         </button>
-      </form>
+
+        {scanning && <QrScanner onScan={handleScan} />}
+
+        <form onSubmit={findByCode} className="flex gap-2">
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Atau ketik kode penukaran..."
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          />
+          <button type="submit" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white">
+            Cari
+          </button>
+        </form>
+      </div>
 
       <div className="flex gap-2">
         {(['pending', 'completed', 'cancelled', 'all'] as const).map((s) => (
