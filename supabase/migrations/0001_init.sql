@@ -151,7 +151,10 @@ security definer
 set search_path = public
 as $$
 begin
-  if public.is_admin() then
+  -- auth.uid() is null when the query runs outside a Supabase Auth session
+  -- (SQL editor, direct psql, migrations) — that already requires full DB
+  -- credentials, a higher trust level than the app's own RLS boundary.
+  if auth.uid() is null or public.is_admin() then
     return new;
   end if;
 
