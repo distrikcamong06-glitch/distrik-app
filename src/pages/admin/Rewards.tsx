@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { Reward } from '../../types/database';
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
 const emptyForm = {
   id: null as string | null,
@@ -18,6 +21,7 @@ export default function RewardsAdmin() {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadRewards = async () => {
@@ -41,6 +45,42 @@ export default function RewardsAdmin() {
       stock: reward.stock === null ? '' : String(reward.stock),
       is_active: reward.is_active,
     });
+  };
+
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setError(null);
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError('Format gambar harus PNG, JPEG, WEBP, atau GIF.');
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError('Ukuran gambar maksimal 5MB.');
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${crypto.randomUUID()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage.from('rewards').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+    if (uploadError) {
+      setUploading(false);
+      setError(uploadError.message);
+      return;
+    }
+
+    const { data } = supabase.storage.from('rewards').getPublicUrl(path);
+    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    setUploading(false);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -99,12 +139,22 @@ export default function RewardsAdmin() {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
         />
-        <input
-          placeholder="URL gambar (opsional)"
-          value={form.image_url}
-          onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-        />
+        <div className="flex items-center gap-3">
+          {form.image_url && (
+            <img src={form.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover" />
+          )}
+          <label className="flex-1 text-sm text-slate-600">
+            Gambar reward (opsional, maks 5MB)
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              onChange={handleImageUpload}
+              disabled={uploading}
+              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+            />
+          </label>
+        </div>
+        {uploading && <p className="text-xs text-slate-400">Mengunggah gambar...</p>}
         <div className="flex gap-2">
           <input
             required
@@ -136,7 +186,7 @@ export default function RewardsAdmin() {
         <div className="flex gap-2">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || uploading}
             className="flex-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
           >
             {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Reward'}

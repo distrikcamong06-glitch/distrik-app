@@ -21,7 +21,7 @@ export default function Register() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name, phone } },
+      options: { data: { name, phone }, emailRedirectTo: `${window.location.origin}/login` },
     });
 
     setLoading(false);
