@@ -6,23 +6,51 @@ import type { Profile } from '../../types/database';
 
 export default function Scan() {
   const [member, setMember] = useState<Profile | null>(null);
+  const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleScan = async (code: string) => {
+  const handleScan = async (rawInput: string) => {
     setResult(null);
     setLookupError(null);
     setMember(null);
+    setSearchResults([]);
 
-    const { data, error } = await supabase.from('profiles').select('*').eq('member_code', code).maybeSingle();
+    const trimmed = rawInput.trim();
+    if (!trimmed) return;
 
-    if (error || !data) {
-      setLookupError('Member dengan kode tersebut tidak ditemukan.');
+    const { data: byCode } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('member_code', trimmed.toUpperCase())
+      .maybeSingle();
+
+    if (byCode) {
+      setMember(byCode as Profile);
       return;
     }
-    setMember(data as Profile);
+
+    // Not a member code — try matching by phone number instead, in case
+    // the member doesn't have their QR handy.
+    const { data: byPhone } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'user')
+      .ilike('phone', `%${trimmed}%`)
+      .limit(10);
+
+    if (byPhone && byPhone.length === 1) {
+      setMember(byPhone[0] as Profile);
+      return;
+    }
+    if (byPhone && byPhone.length > 1) {
+      setSearchResults(byPhone as Profile[]);
+      return;
+    }
+
+    setLookupError('Member dengan kode atau nomor HP tersebut tidak ditemukan.');
   };
 
   const handleAddPoints = async (e: FormEvent) => {
@@ -48,12 +76,47 @@ export default function Scan() {
     setAmount('');
   };
 
+  const reset = () => {
+    setMember(null);
+    setSearchResults([]);
+    setResult(null);
+    setLookupError(null);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold text-slate-800">Scan Poin</h1>
 
-      {!member && <QrScanner onScan={handleScan} />}
+      {!member && (
+        <QrScanner onScan={handleScan} placeholder="Atau ketik kode member / nomor HP..." />
+      )}
       {lookupError && <p className="text-sm text-red-600">{lookupError}</p>}
+
+      {searchResults.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+          <p className="text-xs font-medium text-slate-500">
+            Ditemukan {searchResults.length} member dengan nomor HP itu — pilih salah satu:
+          </p>
+          {searchResults.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => {
+                setMember(m);
+                setSearchResults([]);
+              }}
+              className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50"
+            >
+              <span>
+                <span className="block font-medium text-slate-800">{m.name}</span>
+                <span className="block text-xs text-slate-400">
+                  {m.phone} · {m.member_code}
+                </span>
+              </span>
+              <span className="text-xs font-medium text-emerald-700">{m.points_balance} poin</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {member && (
         <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4">
@@ -61,6 +124,7 @@ export default function Scan() {
             <div>
               <p className="font-medium text-slate-800">{member.name}</p>
               <p className="font-mono text-xs text-slate-400">{member.member_code}</p>
+              {member.phone && <p className="text-xs text-slate-400">{member.phone}</p>}
             </div>
             <p className="text-sm font-semibold text-emerald-700">{member.points_balance} poin</p>
           </div>
@@ -93,13 +157,7 @@ export default function Scan() {
             </p>
           )}
 
-          <button
-            onClick={() => {
-              setMember(null);
-              setResult(null);
-            }}
-            className="text-sm text-slate-500 underline"
-          >
+          <button onClick={reset} className="text-sm text-slate-500 underline">
             Scan member lain
           </button>
         </div>

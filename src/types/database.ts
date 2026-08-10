@@ -41,6 +41,7 @@ export interface Reward {
   image_url: string | null;
   point_cost: number;
   stock: number | null;
+  max_per_user: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

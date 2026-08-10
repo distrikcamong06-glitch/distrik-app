@@ -13,6 +13,7 @@ const emptyForm = {
   image_url: '',
   point_cost: '',
   stock: '',
+  max_per_user: '',
   is_active: true,
 };
 
@@ -43,6 +44,7 @@ export default function RewardsAdmin() {
       image_url: reward.image_url ?? '',
       point_cost: String(reward.point_cost),
       stock: reward.stock === null ? '' : String(reward.stock),
+      max_per_user: reward.max_per_user === null ? '' : String(reward.max_per_user),
       is_active: reward.is_active,
     });
   };
@@ -94,6 +96,7 @@ export default function RewardsAdmin() {
       image_url: form.image_url || null,
       point_cost: Number(form.point_cost),
       stock: form.stock === '' ? null : Number(form.stock),
+      max_per_user: form.max_per_user === '' ? null : Number(form.max_per_user),
       is_active: form.is_active,
     };
 
@@ -174,6 +177,20 @@ export default function RewardsAdmin() {
             className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
         </div>
+        <label className="text-sm text-slate-600">
+          Batas penukaran per member (opsional)
+          <input
+            type="number"
+            min={1}
+            placeholder="Kosong = tidak dibatasi"
+            value={form.max_per_user}
+            onChange={(e) => setForm({ ...form, max_per_user: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          />
+          <span className="mt-1 block text-xs text-slate-400">
+            Contoh: isi 1 supaya tiap member cuma boleh tukar reward ini sekali.
+          </span>
+        </label>
         <label className="flex items-center gap-2 text-sm text-slate-600">
           <input
             type="checkbox"
@@ -215,6 +232,7 @@ export default function RewardsAdmin() {
                 </p>
                 <p className="text-xs text-slate-500">
                   {reward.point_cost} poin · stok {reward.stock === null ? 'unlimited' : reward.stock}
+                  {reward.max_per_user !== null && ` · maks ${reward.max_per_user}/member`}
                 </p>
               </div>
               <div className="flex gap-2">

@@ -44,6 +44,7 @@ create table public.rewards (
   image_url text,
   point_cost int not null check (point_cost > 0),
   stock int check (stock is null or stock >= 0), -- null = unlimited
+  max_per_user int check (max_per_user is null or max_per_user > 0), -- null = no per-member limit
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -246,6 +247,7 @@ declare
   v_user_id uuid := auth.uid();
   v_reward public.rewards;
   v_balance int;
+  v_used_count int;
   v_code text;
   v_row public.redemptions;
 begin
@@ -259,6 +261,16 @@ begin
   end if;
   if v_reward.stock is not null and v_reward.stock <= 0 then
     raise exception 'reward out of stock';
+  end if;
+
+  if v_reward.max_per_user is not null then
+    select count(*) into v_used_count
+    from public.redemptions
+    where user_id = v_user_id and reward_id = p_reward_id and status <> 'cancelled';
+
+    if v_used_count >= v_reward.max_per_user then
+      raise exception 'you have reached the redemption limit for this reward';
+    end if;
   end if;
 
   select points_balance into v_balance from public.profiles where id = v_user_id for update;

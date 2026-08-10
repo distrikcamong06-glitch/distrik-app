@@ -7,25 +7,35 @@ import RedeemSuccessModal from '../../components/RedeemSuccessModal';
 export default function Rewards() {
   const { profile, refreshProfile } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [usedCounts, setUsedCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ rewardName: string; redeemCode: string } | null>(null);
 
   const loadRewards = async () => {
+    if (!profile) return;
     setLoading(true);
-    const { data } = await supabase
-      .from('rewards')
-      .select('*')
-      .eq('is_active', true)
-      .order('point_cost', { ascending: true });
-    setRewards((data as Reward[]) ?? []);
+
+    const [{ data: rewardsData }, { data: myRedemptions }] = await Promise.all([
+      supabase.from('rewards').select('*').eq('is_active', true).order('point_cost', { ascending: true }),
+      supabase.from('redemptions').select('reward_id').eq('user_id', profile.id).neq('status', 'cancelled'),
+    ]);
+
+    const counts: Record<string, number> = {};
+    for (const row of myRedemptions ?? []) {
+      counts[row.reward_id] = (counts[row.reward_id] ?? 0) + 1;
+    }
+
+    setRewards((rewardsData as Reward[]) ?? []);
+    setUsedCounts(counts);
     setLoading(false);
   };
 
   useEffect(() => {
     loadRewards();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
 
   const handleRedeem = async (reward: Reward) => {
     setError(null);
@@ -62,6 +72,8 @@ export default function Rewards() {
           {rewards.map((reward) => {
             const outOfStock = reward.stock !== null && reward.stock <= 0;
             const cantAfford = profile.points_balance < reward.point_cost;
+            const used = usedCounts[reward.id] ?? 0;
+            const limitReached = reward.max_per_user !== null && used >= reward.max_per_user;
             return (
               <div key={reward.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4">
                 {reward.image_url && (
@@ -71,18 +83,25 @@ export default function Rewards() {
                 {reward.description && <p className="text-xs text-slate-500">{reward.description}</p>}
                 <p className="text-sm font-semibold text-emerald-700">{reward.point_cost} poin</p>
                 {reward.stock !== null && <p className="text-xs text-slate-400">Stok: {reward.stock}</p>}
+                {reward.max_per_user !== null && (
+                  <p className="text-xs text-slate-400">
+                    Batas kamu: {used}/{reward.max_per_user}
+                  </p>
+                )}
                 <button
                   onClick={() => handleRedeem(reward)}
-                  disabled={outOfStock || cantAfford || redeemingId === reward.id}
+                  disabled={outOfStock || cantAfford || limitReached || redeemingId === reward.id}
                   className="mt-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
                 >
                   {redeemingId === reward.id
                     ? 'Memproses...'
                     : outOfStock
                       ? 'Stok Habis'
-                      : cantAfford
-                        ? 'Poin Tidak Cukup'
-                        : 'Tukar Sekarang'}
+                      : limitReached
+                        ? 'Batas Tercapai'
+                        : cantAfford
+                          ? 'Poin Tidak Cukup'
+                          : 'Tukar Sekarang'}
                 </button>
               </div>
             );

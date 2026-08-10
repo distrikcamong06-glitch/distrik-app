@@ -3,7 +3,13 @@ import { Html5Qrcode } from 'html5-qrcode';
 
 const ELEMENT_ID = 'qr-scanner-region';
 
-export default function QrScanner({ onScan }: { onScan: (code: string) => void }) {
+export default function QrScanner({
+  onScan,
+  placeholder = 'Atau scan/ketik kode member (CMG-...)',
+}: {
+  onScan: (code: string) => void;
+  placeholder?: string;
+}) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState('');
@@ -53,7 +59,7 @@ export default function QrScanner({ onScan }: { onScan: (code: string) => void }
           autoFocus
           value={manualCode}
           onChange={(e) => setManualCode(e.target.value)}
-          placeholder="Atau scan/ketik kode member (CMG-...)"
+          placeholder={placeholder}
           className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
         />
         <button
