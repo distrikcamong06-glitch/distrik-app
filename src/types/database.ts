@@ -19,6 +19,7 @@ export interface PointRules {
   rupiah_per_point: number;
   signup_bonus: number;
   points_expiry_days: number | null;
+  max_redemptions_per_day: number | null;
   updated_at: string;
 }
 

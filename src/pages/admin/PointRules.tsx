@@ -8,6 +8,7 @@ export default function PointRulesAdmin() {
   const [rupiahPerPoint, setRupiahPerPoint] = useState('');
   const [signupBonus, setSignupBonus] = useState('');
   const [expiryDays, setExpiryDays] = useState('');
+  const [maxRedemptionsPerDay, setMaxRedemptionsPerDay] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -23,6 +24,7 @@ export default function PointRulesAdmin() {
         setRupiahPerPoint(String(r.rupiah_per_point));
         setSignupBonus(String(r.signup_bonus));
         setExpiryDays(r.points_expiry_days === null ? '' : String(r.points_expiry_days));
+        setMaxRedemptionsPerDay(r.max_redemptions_per_day === null ? '' : String(r.max_redemptions_per_day));
       });
   }, []);
 
@@ -38,6 +40,7 @@ export default function PointRulesAdmin() {
         rupiah_per_point: Number(rupiahPerPoint),
         signup_bonus: Number(signupBonus),
         points_expiry_days: expiryDays === '' ? null : Number(expiryDays),
+        max_redemptions_per_day: maxRedemptionsPerDay === '' ? null : Number(maxRedemptionsPerDay),
         updated_at: new Date().toISOString(),
       })
       .eq('id', rules.id);
@@ -87,6 +90,21 @@ export default function PointRulesAdmin() {
             onChange={(e) => setExpiryDays(e.target.value)}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
+        </label>
+
+        <label className="text-sm font-medium text-slate-600">
+          Batas penukaran reward per hari (kosongkan = tidak dibatasi)
+          <input
+            type="number"
+            min={1}
+            value={maxRedemptionsPerDay}
+            onChange={(e) => setMaxRedemptionsPerDay(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Total penukaran reward apapun per member per hari, digabung semua produk. Terpisah dari batas per
+            reward yang diatur di halaman Kelola Reward.
+          </p>
         </label>
 
         {message && <p className="text-sm text-emerald-600">{message}</p>}

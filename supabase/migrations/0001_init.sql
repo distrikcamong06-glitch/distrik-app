@@ -12,6 +12,7 @@ create table public.point_rules (
   rupiah_per_point int not null default 1000 check (rupiah_per_point > 0),
   signup_bonus int not null default 0 check (signup_bonus >= 0),
   points_expiry_days int, -- null = never expires
+  max_redemptions_per_day int check (max_redemptions_per_day is null or max_redemptions_per_day > 0), -- null = no daily limit
   updated_at timestamptz not null default now()
 );
 
@@ -248,6 +249,8 @@ declare
   v_reward public.rewards;
   v_balance int;
   v_used_count int;
+  v_daily_limit int;
+  v_today_count int;
   v_code text;
   v_row public.redemptions;
 begin
@@ -270,6 +273,19 @@ begin
 
     if v_used_count >= v_reward.max_per_user then
       raise exception 'you have reached the redemption limit for this reward';
+    end if;
+  end if;
+
+  select max_redemptions_per_day into v_daily_limit from public.point_rules limit 1;
+  if v_daily_limit is not null then
+    select count(*) into v_today_count
+    from public.redemptions
+    where user_id = v_user_id
+      and status <> 'cancelled'
+      and created_at >= date_trunc('day', now());
+
+    if v_today_count >= v_daily_limit then
+      raise exception 'you have reached today''s redemption limit';
     end if;
   end if;
 
