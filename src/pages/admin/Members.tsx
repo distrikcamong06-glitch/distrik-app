@@ -15,6 +15,13 @@ export default function Members() {
   const [newPassword, setNewPassword] = useState('');
   const [pwBusyId, setPwBusyId] = useState<string | null>(null);
   const [pwMessage, setPwMessage] = useState<{ id: string; type: 'success' | 'error'; text: string } | null>(null);
+  const [deductAmount, setDeductAmount] = useState('');
+  const [deductReason, setDeductReason] = useState('');
+  const [deductBusyId, setDeductBusyId] = useState<string | null>(null);
+  const [deductMessage, setDeductMessage] = useState<{ id: string; type: 'success' | 'error'; text: string } | null>(
+    null
+  );
+  const [promoteBusyId, setPromoteBusyId] = useState<string | null>(null);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -38,19 +45,23 @@ export default function Members() {
     await loadMembers();
   };
 
+  const loadHistory = async (memberId: string) => {
+    const { data } = await supabase
+      .from('point_transactions')
+      .select('*')
+      .eq('user_id', memberId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    setHistory((data as PointTransaction[]) ?? []);
+  };
+
   const toggleExpand = async (member: Profile) => {
     if (expandedId === member.id) {
       setExpandedId(null);
       return;
     }
     setExpandedId(member.id);
-    const { data } = await supabase
-      .from('point_transactions')
-      .select('*')
-      .eq('user_id', member.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    setHistory((data as PointTransaction[]) ?? []);
+    await loadHistory(member.id);
   };
 
   const sendPasswordReset = async (member: Profile) => {
@@ -85,6 +96,41 @@ export default function Members() {
     }
     setPwMessage({ id: member.id, type: 'success', text: 'Password member berhasil diganti.' });
     setNewPassword('');
+  };
+
+  const handleDeductPoints = async (e: FormEvent, member: Profile) => {
+    e.preventDefault();
+    setDeductBusyId(member.id);
+    setDeductMessage(null);
+
+    const { error } = await supabase.rpc('admin_deduct_points', {
+      p_member_code: member.member_code,
+      p_points: Number(deductAmount),
+      p_reason: deductReason,
+    });
+
+    setDeductBusyId(null);
+    if (error) {
+      setDeductMessage({ id: member.id, type: 'error', text: error.message });
+      return;
+    }
+    setDeductMessage({ id: member.id, type: 'success', text: `${deductAmount} poin dikurangi.` });
+    setDeductAmount('');
+    setDeductReason('');
+    await loadMembers();
+    await loadHistory(member.id);
+  };
+
+  const promoteToAdmin = async (member: Profile) => {
+    if (!window.confirm(`Jadikan ${member.name} admin? Aksi ini memberi akses penuh ke dashboard admin.`)) return;
+    setPromoteBusyId(member.id);
+    const { error } = await supabase.from('profiles').update({ role: 'admin' }).eq('id', member.id);
+    setPromoteBusyId(null);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    await loadMembers();
   };
 
   const filtered = members.filter((m) => {
@@ -136,6 +182,51 @@ export default function Members() {
                     message={`Halo ${member.name}! Info poin Distrik Camong kamu:\nKode member: ${member.member_code}\nPoin saat ini: ${member.points_balance} poin`}
                     label="Kirim Info Poin ke WhatsApp"
                   />
+
+                  <div className="flex flex-col gap-2 rounded-lg bg-red-50 p-3">
+                    <p className="text-xs font-medium text-slate-600">Kurangi poin (wajib isi alasan)</p>
+                    <form onSubmit={(e) => handleDeductPoints(e, member)} className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          max={member.points_balance}
+                          placeholder="Jumlah poin"
+                          value={deductAmount}
+                          onChange={(e) => setDeductAmount(e.target.value)}
+                          className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                        />
+                        <input
+                          required
+                          placeholder="Alasan (mis. poin salah input)"
+                          value={deductReason}
+                          onChange={(e) => setDeductReason(e.target.value)}
+                          className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={deductBusyId === member.id}
+                        className="rounded-lg bg-red-600 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {deductBusyId === member.id ? 'Memproses...' : 'Kurangi Poin'}
+                      </button>
+                    </form>
+                    {deductMessage?.id === member.id && (
+                      <p className={`text-xs ${deductMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {deductMessage.text}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => promoteToAdmin(member)}
+                    disabled={promoteBusyId === member.id}
+                    className="rounded-lg border border-slate-300 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    {promoteBusyId === member.id ? 'Memproses...' : 'Jadikan Admin'}
+                  </button>
 
                   <div className="flex flex-col gap-2 rounded-lg bg-slate-50 p-3">
                     <div className="flex items-center justify-between gap-2">
