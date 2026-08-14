@@ -13,12 +13,12 @@ import Barcode from './pages/user/Barcode';
 import Profile from './pages/user/Profile';
 import Rewards from './pages/user/Rewards';
 import RedemptionHistory from './pages/user/RedemptionHistory';
+import PointHistory from './pages/user/PointHistory';
 
 import Dashboard from './pages/admin/Dashboard';
 import Scan from './pages/admin/Scan';
 import Members from './pages/admin/Members';
 import RewardsAdmin from './pages/admin/Rewards';
-import MenusAdmin from './pages/admin/Menus';
 import PointRulesAdmin from './pages/admin/PointRules';
 import Transactions from './pages/admin/Transactions';
 import RedemptionsAdmin from './pages/admin/Redemptions';
@@ -60,6 +60,10 @@ export default function App() {
             path="/rewards/history"
             element={<ProtectedRoute role="user">{withLayout(<RedemptionHistory />)}</ProtectedRoute>}
           />
+          <Route
+            path="/points-history"
+            element={<ProtectedRoute role="user">{withLayout(<PointHistory />)}</ProtectedRoute>}
+          />
 
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute role="admin">{withLayout(<Dashboard />)}</ProtectedRoute>} />
@@ -74,10 +78,6 @@ export default function App() {
           <Route
             path="/admin/rewards"
             element={<ProtectedRoute role="admin">{withLayout(<RewardsAdmin />)}</ProtectedRoute>}
-          />
-          <Route
-            path="/admin/menus"
-            element={<ProtectedRoute role="admin">{withLayout(<MenusAdmin />)}</ProtectedRoute>}
           />
           <Route
             path="/admin/point-rules"

@@ -7,6 +7,7 @@ export interface Profile {
   id: string;
   member_code: string;
   name: string;
+  email: string | null;
   phone: string | null;
   role: Role;
   points_balance: number;

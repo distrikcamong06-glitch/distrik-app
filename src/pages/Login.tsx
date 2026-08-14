@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,8 +27,8 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-lg font-semibold text-emerald-700">Distrik Camong</h1>
-        <p className="mb-6 text-sm text-slate-500">Masuk ke akun member kamu</p>
+        <img src={logo} alt="Distrik Camong" className="mx-auto mb-4 h-20 w-auto" />
+        <p className="mb-6 text-center text-sm text-slate-500">Masuk ke akun member kamu</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input

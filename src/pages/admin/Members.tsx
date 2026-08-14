@@ -9,6 +9,7 @@ export default function Members() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [history, setHistory] = useState<PointTransaction[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [resetMessage, setResetMessage] = useState<{ id: string; text: string } | null>(null);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -45,6 +46,22 @@ export default function Members() {
       .order('created_at', { ascending: false })
       .limit(10);
     setHistory((data as PointTransaction[]) ?? []);
+  };
+
+  const sendPasswordReset = async (member: Profile) => {
+    if (!member.email) {
+      setResetMessage({ id: member.id, text: 'Member ini tidak punya email tercatat.' });
+      return;
+    }
+    setBusyId(member.id);
+    const { error } = await supabase.auth.resetPasswordForEmail(member.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusyId(null);
+    setResetMessage({
+      id: member.id,
+      text: error ? error.message : `Link reset password dikirim ke ${member.email}.`,
+    });
   };
 
   const filtered = members.filter((m) => {
@@ -89,6 +106,20 @@ export default function Members() {
 
               {expandedId === member.id && (
                 <div className="mt-3 border-t border-slate-100 pt-3">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <p className="text-xs text-slate-500">{member.email ?? 'Tidak ada email'}</p>
+                    <button
+                      onClick={() => sendPasswordReset(member)}
+                      disabled={busyId === member.id}
+                      className="shrink-0 rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {busyId === member.id ? 'Mengirim...' : 'Kirim Reset Password'}
+                    </button>
+                  </div>
+                  {resetMessage?.id === member.id && (
+                    <p className="mb-3 text-xs text-emerald-600">{resetMessage.text}</p>
+                  )}
+
                   <p className="mb-1 text-xs font-medium text-slate-500">10 transaksi terakhir</p>
                   {history.length === 0 ? (
                     <p className="text-xs text-slate-400">Belum ada transaksi.</p>

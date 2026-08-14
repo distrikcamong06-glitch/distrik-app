@@ -1,42 +1,38 @@
-import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
-import type { Menu } from '../types/database';
 import Icon from './Icon';
+
+const USER_MENU = [
+  { label: 'Barcode Saya', path: '/barcode', icon: 'QrCode' },
+  { label: 'Tukar Poin', path: '/rewards', icon: 'Gift' },
+  { label: 'Riwayat Penukaran', path: '/rewards/history', icon: 'History' },
+  { label: 'Riwayat Poin', path: '/points-history', icon: 'Receipt' },
+  { label: 'Profil', path: '/profile', icon: 'User' },
+];
+
+const ADMIN_MENU = [
+  { label: 'Dashboard', path: '/admin', icon: 'LayoutDashboard' },
+  { label: 'Scan Poin', path: '/admin/scan', icon: 'ScanLine' },
+  { label: 'Member', path: '/admin/members', icon: 'Users' },
+  { label: 'Penukaran', path: '/admin/redemptions', icon: 'ClipboardList' },
+  { label: 'Reward', path: '/admin/rewards', icon: 'Gift' },
+  { label: 'Aturan Poin', path: '/admin/point-rules', icon: 'Percent' },
+  { label: 'Riwayat Transaksi', path: '/admin/transactions', icon: 'Receipt' },
+  { label: 'Profil', path: '/profile', icon: 'User' },
+];
 
 export default function NavMenu() {
   const { profile } = useAuth();
-  const [menus, setMenus] = useState<Menu[]>([]);
-
-  useEffect(() => {
-    if (!profile) return;
-    let cancelled = false;
-
-    supabase
-      .from('menus')
-      .select('*')
-      .in('role', [profile.role, 'all'])
-      .eq('is_active', true)
-      .is('parent_id', null)
-      .order('order', { ascending: true })
-      .then(({ data }) => {
-        if (!cancelled) setMenus((data as Menu[]) ?? []);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [profile]);
-
   if (!profile) return null;
+
+  const menu = profile.role === 'admin' ? ADMIN_MENU : USER_MENU;
 
   return (
     <nav className="flex gap-1 overflow-x-auto border-t border-slate-200 bg-white px-2 py-1.5 sm:justify-center">
-      {menus.map((menu) => (
+      {menu.map((item) => (
         <NavLink
-          key={menu.id}
-          to={menu.path}
+          key={item.path}
+          to={item.path}
           end
           className={({ isActive }) =>
             `flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -44,8 +40,8 @@ export default function NavMenu() {
             }`
           }
         >
-          <Icon name={menu.icon} size={20} strokeWidth={2} />
-          <span className="whitespace-nowrap">{menu.label}</span>
+          <Icon name={item.icon} size={20} strokeWidth={2} />
+          <span className="whitespace-nowrap">{item.label}</span>
         </NavLink>
       ))}
     </nav>

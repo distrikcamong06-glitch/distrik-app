@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
+import ShareWhatsAppButton from '../../components/ShareWhatsAppButton';
 
 export default function Profile() {
   const { profile, session, refreshProfile } = useAuth();
@@ -83,6 +84,13 @@ export default function Profile() {
         >
           {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
+
+        {profile.role === 'user' && (
+          <ShareWhatsAppButton
+            message={`Halo! Ini profil member Distrik Camong aku:\nNama: ${profile.name}\nKode member: ${profile.member_code}\nPoin: ${profile.points_balance} poin`}
+            label="Bagikan Profil"
+          />
+        )}
       </form>
 
       <form

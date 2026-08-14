@@ -20,6 +20,7 @@ create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   member_code text not null unique,
   name text not null,
+  email text,
   phone text,
   role text not null default 'user' check (role in ('admin', 'user')),
   points_balance int not null default 0 check (points_balance >= 0),
@@ -119,11 +120,12 @@ begin
   select signup_bonus into v_bonus from public.point_rules limit 1;
   v_bonus := coalesce(v_bonus, 0);
 
-  insert into public.profiles (id, member_code, name, phone, role, points_balance)
+  insert into public.profiles (id, member_code, name, email, phone, role, points_balance)
   values (
     new.id,
     public.generate_member_code(),
     coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)),
+    new.email,
     new.raw_user_meta_data ->> 'phone',
     'user',
     v_bonus
@@ -170,7 +172,8 @@ begin
   if new.role is distinct from old.role
      or new.points_balance is distinct from old.points_balance
      or new.is_active is distinct from old.is_active
-     or new.member_code is distinct from old.member_code then
+     or new.member_code is distinct from old.member_code
+     or new.email is distinct from old.email then
     raise exception 'not allowed to modify protected profile fields';
   end if;
 
