@@ -3,7 +3,58 @@ import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PointRules } from '../../types/database';
 
+const SESSION_KEY = 'point-rules-unlocked';
+const GATE_PASSWORD = import.meta.env.VITE_POINT_RULES_PASSWORD as string | undefined;
+
+function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!GATE_PASSWORD) {
+      setError('Password belum di-set di environment variable VITE_POINT_RULES_PASSWORD.');
+      return;
+    }
+    if (password === GATE_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      onUnlock();
+      return;
+    }
+    setError('Password salah.');
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-lg font-semibold text-slate-800">Aturan Poin</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4"
+      >
+        <p className="text-sm text-slate-600">Halaman ini dikunci. Masukkan password untuk mengubah aturan poin.</p>
+        <input
+          type="password"
+          required
+          autoFocus
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        />
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <button
+          type="submit"
+          className="rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+        >
+          Buka
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function PointRulesAdmin() {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === 'true');
   const [rules, setRules] = useState<PointRules | null>(null);
   const [rupiahPerPoint, setRupiahPerPoint] = useState('');
   const [signupBonus, setSignupBonus] = useState('');
@@ -13,6 +64,7 @@ export default function PointRulesAdmin() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!unlocked) return;
     supabase
       .from('point_rules')
       .select('*')
@@ -26,7 +78,11 @@ export default function PointRulesAdmin() {
         setExpiryDays(r.points_expiry_days === null ? '' : String(r.points_expiry_days));
         setMaxRedemptionsPerDay(r.max_redemptions_per_day === null ? '' : String(r.max_redemptions_per_day));
       });
-  }, []);
+  }, [unlocked]);
+
+  if (!unlocked) {
+    return <PasswordGate onUnlock={() => setUnlocked(true)} />;
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
