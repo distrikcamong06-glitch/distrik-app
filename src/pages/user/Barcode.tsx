@@ -1,12 +1,9 @@
 import { useAuth } from '../../contexts/AuthContext';
 import BarcodeDisplay from '../../components/BarcodeDisplay';
-import ShareWhatsAppButton from '../../components/ShareWhatsAppButton';
 
 export default function Barcode() {
   const { profile } = useAuth();
   if (!profile) return null;
-
-  const shareMessage = `Halo! Ini kode member Distrik Camong aku: ${profile.member_code}\nPoin saat ini: ${profile.points_balance} poin.\nYuk gabung juga jadi member Distrik Camong!`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -21,8 +18,6 @@ export default function Barcode() {
       </div>
 
       <BarcodeDisplay memberCode={profile.member_code} />
-
-      <ShareWhatsAppButton message={shareMessage} label="Bagikan Poin & Kode Member" />
     </div>
   );
 }

@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import QrScanner from '../../components/QrScanner';
-import type { Profile } from '../../types/database';
+import ShareWhatsAppButton from '../../components/ShareWhatsAppButton';
+import type { Profile, Reward } from '../../types/database';
+
+function utcDayStartIso() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
+}
 
 export default function Scan() {
   const [member, setMember] = useState<Profile | null>(null);
@@ -11,6 +17,13 @@ export default function Scan() {
   const [amount, setAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [usedCounts, setUsedCounts] = useState<Record<string, number>>({});
+  const [dailyLimit, setDailyLimit] = useState<number | null>(null);
+  const [todayCount, setTodayCount] = useState(0);
+  const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const [redeemResult, setRedeemResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleScan = async (rawInput: string) => {
     setResult(null);
@@ -53,6 +66,40 @@ export default function Scan() {
     setLookupError('Member dengan kode atau nomor HP tersebut tidak ditemukan.');
   };
 
+  const loadRewardContext = async (memberId: string) => {
+    const [{ data: rewardsData }, { data: memberRedemptions }, { data: rulesData }, { count: todayRedemptions }] =
+      await Promise.all([
+        supabase.from('rewards').select('*').eq('is_active', true).order('point_cost', { ascending: true }),
+        supabase.from('redemptions').select('reward_id').eq('user_id', memberId).neq('status', 'cancelled'),
+        supabase.from('point_rules').select('max_redemptions_per_day').limit(1).single(),
+        supabase
+          .from('redemptions')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', memberId)
+          .neq('status', 'cancelled')
+          .gte('created_at', utcDayStartIso()),
+      ]);
+
+    const counts: Record<string, number> = {};
+    for (const row of memberRedemptions ?? []) {
+      counts[row.reward_id] = (counts[row.reward_id] ?? 0) + 1;
+    }
+
+    setRewards((rewardsData as Reward[]) ?? []);
+    setUsedCounts(counts);
+    setDailyLimit((rulesData as { max_redemptions_per_day: number | null } | null)?.max_redemptions_per_day ?? null);
+    setTodayCount(todayRedemptions ?? 0);
+  };
+
+  useEffect(() => {
+    if (member) loadRewardContext(member.id);
+    else {
+      setRewards([]);
+      setUsedCounts({});
+      setRedeemResult(null);
+    }
+  }, [member]);
+
   const handleAddPoints = async (e: FormEvent) => {
     e.preventDefault();
     if (!member) return;
@@ -76,11 +123,37 @@ export default function Scan() {
     setAmount('');
   };
 
+  const handleRedeemForMember = async (reward: Reward) => {
+    if (!member) return;
+    setRedeemingId(reward.id);
+    setRedeemResult(null);
+
+    const { data, error } = await supabase.rpc('admin_redeem_reward', {
+      p_member_code: member.member_code,
+      p_reward_id: reward.id,
+    });
+
+    setRedeemingId(null);
+
+    if (error) {
+      setRedeemResult({ type: 'error', text: error.message });
+      return;
+    }
+
+    setRedeemResult({
+      type: 'success',
+      text: `${reward.name} berhasil ditukar untuk ${member.name}. Kode: ${data.redeem_code}`,
+    });
+    setMember({ ...member, points_balance: member.points_balance - reward.point_cost });
+    await loadRewardContext(member.id);
+  };
+
   const reset = () => {
     setMember(null);
     setSearchResults([]);
     setResult(null);
     setLookupError(null);
+    setRedeemResult(null);
   };
 
   return (
@@ -156,6 +229,71 @@ export default function Scan() {
               {result.text}
             </p>
           )}
+
+          <ShareWhatsAppButton
+            phone={member.phone}
+            message={`Halo ${member.name}! Poin Distrik Camong kamu sekarang: ${member.points_balance} poin.`}
+            label="Kirim Info Poin ke WhatsApp"
+          />
+
+          <div className="border-t border-slate-100 pt-3">
+            <p className="mb-2 text-sm font-medium text-slate-600">
+              Tukar reward untuk member ini (kalau lupa bawa HP)
+            </p>
+            {dailyLimit !== null && (
+              <p className="mb-2 text-xs text-slate-400">
+                Penukaran hari ini: {todayCount}/{dailyLimit}
+              </p>
+            )}
+            {redeemResult && (
+              <p className={`mb-2 text-xs ${redeemResult.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                {redeemResult.text}
+              </p>
+            )}
+            {rewards.length === 0 ? (
+              <p className="text-xs text-slate-400">Belum ada reward tersedia.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {rewards.map((reward) => {
+                  const outOfStock = reward.stock !== null && reward.stock <= 0;
+                  const cantAfford = member.points_balance < reward.point_cost;
+                  const used = usedCounts[reward.id] ?? 0;
+                  const perRewardLimitReached = reward.max_per_user !== null && used >= reward.max_per_user;
+                  const dailyLimitReached = dailyLimit !== null && todayCount >= dailyLimit;
+                  const disabled =
+                    outOfStock || cantAfford || perRewardLimitReached || dailyLimitReached || redeemingId === reward.id;
+                  return (
+                    <div
+                      key={reward.id}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-slate-100 p-2"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-slate-800">{reward.name}</p>
+                        <p className="text-xs text-slate-400">{reward.point_cost} poin</p>
+                      </div>
+                      <button
+                        onClick={() => handleRedeemForMember(reward)}
+                        disabled={disabled}
+                        className="shrink-0 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+                      >
+                        {redeemingId === reward.id
+                          ? 'Memproses...'
+                          : outOfStock
+                            ? 'Stok Habis'
+                            : perRewardLimitReached
+                              ? 'Batas Tercapai'
+                              : dailyLimitReached
+                                ? 'Batas Harian'
+                                : cantAfford
+                                  ? 'Poin Kurang'
+                                  : 'Tukarkan'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <button onClick={reset} className="text-sm text-slate-500 underline">
             Scan member lain

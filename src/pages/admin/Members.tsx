@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PointTransaction, Profile } from '../../types/database';
+import ShareWhatsAppButton from '../../components/ShareWhatsAppButton';
 
 export default function Members() {
   const [members, setMembers] = useState<Profile[]>([]);
@@ -10,6 +12,9 @@ export default function Members() {
   const [history, setHistory] = useState<PointTransaction[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [resetMessage, setResetMessage] = useState<{ id: string; text: string } | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [pwBusyId, setPwBusyId] = useState<string | null>(null);
+  const [pwMessage, setPwMessage] = useState<{ id: string; type: 'success' | 'error'; text: string } | null>(null);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -64,6 +69,24 @@ export default function Members() {
     });
   };
 
+  const handleSetPassword = async (e: FormEvent, member: Profile) => {
+    e.preventDefault();
+    setPwBusyId(member.id);
+    setPwMessage(null);
+
+    const { error } = await supabase.functions.invoke('admin-set-password', {
+      body: { user_id: member.id, new_password: newPassword },
+    });
+
+    setPwBusyId(null);
+    if (error) {
+      setPwMessage({ id: member.id, type: 'error', text: error.message });
+      return;
+    }
+    setPwMessage({ id: member.id, type: 'success', text: 'Password member berhasil diganti.' });
+    setNewPassword('');
+  };
+
   const filtered = members.filter((m) => {
     const q = search.toLowerCase();
     return m.name.toLowerCase().includes(q) || m.member_code.toLowerCase().includes(q) || (m.phone ?? '').includes(q);
@@ -105,20 +128,54 @@ export default function Members() {
               </div>
 
               {expandedId === member.id && (
-                <div className="mt-3 border-t border-slate-100 pt-3">
-                  <div className="mb-3 flex items-center justify-between gap-2">
-                    <p className="text-xs text-slate-500">{member.email ?? 'Tidak ada email'}</p>
-                    <button
-                      onClick={() => sendPasswordReset(member)}
-                      disabled={busyId === member.id}
-                      className="shrink-0 rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-                    >
-                      {busyId === member.id ? 'Mengirim...' : 'Kirim Reset Password'}
-                    </button>
+                <div className="mt-3 flex flex-col gap-3 border-t border-slate-100 pt-3">
+                  <p className="text-xs text-slate-500">{member.email ?? 'Tidak ada email'}</p>
+
+                  <ShareWhatsAppButton
+                    phone={member.phone}
+                    message={`Halo ${member.name}! Info poin Distrik Camong kamu:\nKode member: ${member.member_code}\nPoin saat ini: ${member.points_balance} poin`}
+                    label="Kirim Info Poin ke WhatsApp"
+                  />
+
+                  <div className="flex flex-col gap-2 rounded-lg bg-slate-50 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-medium text-slate-600">Lupa password?</p>
+                      <button
+                        onClick={() => sendPasswordReset(member)}
+                        disabled={busyId === member.id}
+                        className="shrink-0 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                      >
+                        {busyId === member.id ? 'Mengirim...' : 'Kirim Link Reset'}
+                      </button>
+                    </div>
+                    {resetMessage?.id === member.id && (
+                      <p className="text-xs text-emerald-600">{resetMessage.text}</p>
+                    )}
+
+                    <form onSubmit={(e) => handleSetPassword(e, member)} className="flex gap-2">
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        placeholder="Atau langsung set password baru"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                      />
+                      <button
+                        type="submit"
+                        disabled={pwBusyId === member.id}
+                        className="shrink-0 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                      >
+                        {pwBusyId === member.id ? 'Menyimpan...' : 'Set Password'}
+                      </button>
+                    </form>
+                    {pwMessage?.id === member.id && (
+                      <p className={`text-xs ${pwMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {pwMessage.text}
+                      </p>
+                    )}
                   </div>
-                  {resetMessage?.id === member.id && (
-                    <p className="mb-3 text-xs text-emerald-600">{resetMessage.text}</p>
-                  )}
 
                   <p className="mb-1 text-xs font-medium text-slate-500">10 transaksi terakhir</p>
                   {history.length === 0 ? (
