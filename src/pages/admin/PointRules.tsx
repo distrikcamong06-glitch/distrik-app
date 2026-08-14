@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PointRules } from '../../types/database';
+import PasswordInput from '../../components/PasswordInput';
 
-const SESSION_KEY = 'point-rules-unlocked';
 const GATE_PASSWORD = import.meta.env.VITE_POINT_RULES_PASSWORD as string | undefined;
 
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
@@ -17,7 +17,6 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
       return;
     }
     if (password === GATE_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
       onUnlock();
       return;
     }
@@ -31,9 +30,10 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
         onSubmit={handleSubmit}
         className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4"
       >
-        <p className="text-sm text-slate-600">Halaman ini dikunci. Masukkan password untuk mengubah aturan poin.</p>
-        <input
-          type="password"
+        <p className="text-sm text-slate-600">
+          Halaman ini dikunci — masukkan password tiap kali dibuka untuk mengubah aturan poin.
+        </p>
+        <PasswordInput
           required
           autoFocus
           placeholder="Password"
@@ -54,7 +54,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
 }
 
 export default function PointRulesAdmin() {
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === 'true');
+  const [unlocked, setUnlocked] = useState(false);
   const [rules, setRules] = useState<PointRules | null>(null);
   const [rupiahPerPoint, setRupiahPerPoint] = useState('');
   const [signupBonus, setSignupBonus] = useState('');

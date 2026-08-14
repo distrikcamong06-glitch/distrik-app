@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import logo from '../assets/logo.png';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,8 +40,7 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
-          <input
-            type="password"
+          <PasswordInput
             required
             placeholder="Password"
             value={password}
