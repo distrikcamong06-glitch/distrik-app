@@ -117,9 +117,20 @@ export default function RewardsAdmin() {
     if (!confirm(`Hapus reward "${reward.name}"?`)) return;
     const { error } = await supabase.from('rewards').delete().eq('id', reward.id);
     if (error) {
-      alert(`Tidak bisa dihapus (${error.message}). Coba nonaktifkan saja.`);
+      if (error.message.includes('foreign key constraint')) {
+        alert(
+          `"${reward.name}" sudah pernah ditukar member, jadi tidak bisa dihapus permanen (supaya riwayat transaksi lama tidak rusak). Pakai tombol "Nonaktifkan" saja — reward akan hilang dari katalog tapi riwayatnya tetap aman.`
+        );
+      } else {
+        alert(`Tidak bisa dihapus: ${error.message}`);
+      }
       return;
     }
+    await loadRewards();
+  };
+
+  const toggleRewardActive = async (reward: Reward) => {
+    await supabase.from('rewards').update({ is_active: !reward.is_active }).eq('id', reward.id);
     await loadRewards();
   };
 
@@ -235,7 +246,15 @@ export default function RewardsAdmin() {
                   {reward.max_per_user !== null && ` · maks ${reward.max_per_user}/member`}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => toggleRewardActive(reward)}
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${
+                    reward.is_active ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700'
+                  }`}
+                >
+                  {reward.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                </button>
                 <button onClick={() => startEdit(reward)} className="text-xs font-medium text-emerald-700">
                   Edit
                 </button>
