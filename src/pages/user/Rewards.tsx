@@ -108,7 +108,11 @@ export default function Rewards() {
             return (
               <div key={reward.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4">
                 {reward.image_url && (
-                  <img src={reward.image_url} alt={reward.name} className="h-32 w-full rounded-lg object-cover" />
+                  <img
+                    src={reward.image_url}
+                    alt={reward.name}
+                    className="aspect-square w-full rounded-lg object-cover"
+                  />
                 )}
                 <p className="font-medium text-slate-800">{reward.name}</p>
                 {reward.description && <p className="text-xs text-slate-500">{reward.description}</p>}

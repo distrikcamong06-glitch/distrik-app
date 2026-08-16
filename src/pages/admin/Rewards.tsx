@@ -237,14 +237,27 @@ export default function RewardsAdmin() {
         <div className="flex flex-col gap-2">
           {rewards.map((reward) => (
             <div key={reward.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-              <div>
-                <p className="font-medium text-slate-800">
-                  {reward.name} {!reward.is_active && <span className="text-xs text-slate-400">(nonaktif)</span>}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {reward.point_cost} poin · stok {reward.stock === null ? 'unlimited' : reward.stock}
-                  {reward.max_per_user !== null && ` · maks ${reward.max_per_user}/member`}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                {reward.image_url ? (
+                  <img
+                    src={reward.image_url}
+                    alt={reward.name}
+                    className="aspect-square h-14 w-14 shrink-0 rounded-lg border border-slate-200 object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-square h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 text-[10px] text-slate-300">
+                    Tanpa foto
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-slate-800">
+                    {reward.name} {!reward.is_active && <span className="text-xs text-slate-400">(nonaktif)</span>}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {reward.point_cost} poin · stok {reward.stock === null ? 'unlimited' : reward.stock}
+                    {reward.max_per_user !== null && ` · maks ${reward.max_per_user}/member`}
+                  </p>
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <button
