@@ -185,7 +185,7 @@ export default function Scan() {
                   {m.phone} · {m.member_code}
                 </span>
               </span>
-              <span className="text-xs font-medium text-emerald-700">{m.points_balance} poin</span>
+              <span className="text-xs font-medium text-brand-green-700">{m.points_balance} poin</span>
             </button>
           ))}
         </div>
@@ -199,7 +199,7 @@ export default function Scan() {
               <p className="font-mono text-xs text-slate-400">{member.member_code}</p>
               {member.phone && <p className="text-xs text-slate-400">{member.phone}</p>}
             </div>
-            <p className="text-sm font-semibold text-emerald-700">{member.points_balance} poin</p>
+            <p className="text-sm font-semibold text-brand-green-700">{member.points_balance} poin</p>
           </div>
 
           <form onSubmit={handleAddPoints} className="flex flex-col gap-2">
@@ -212,20 +212,20 @@ export default function Scan() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="50000"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
               />
             </label>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
             >
               {submitting ? 'Memproses...' : 'Tambah Poin'}
             </button>
           </form>
 
           {result && (
-            <p className={`text-sm ${result.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className={`text-sm ${result.type === 'success' ? 'text-brand-green-600' : 'text-red-600'}`}>
               {result.text}
             </p>
           )}
@@ -246,7 +246,7 @@ export default function Scan() {
               </p>
             )}
             {redeemResult && (
-              <p className={`mb-2 text-xs ${redeemResult.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+              <p className={`mb-2 text-xs ${redeemResult.type === 'success' ? 'text-brand-green-600' : 'text-red-600'}`}>
                 {redeemResult.text}
               </p>
             )}
@@ -274,7 +274,7 @@ export default function Scan() {
                       <button
                         onClick={() => handleRedeemForMember(reward)}
                         disabled={disabled}
-                        className="shrink-0 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+                        className="shrink-0 rounded-lg bg-brand-green-600 px-2 py-1.5 text-xs font-medium text-white disabled:opacity-40"
                       >
                         {redeemingId === reward.id
                           ? 'Memproses...'

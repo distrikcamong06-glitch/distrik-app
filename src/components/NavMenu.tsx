@@ -37,7 +37,7 @@ export default function NavMenu() {
           end
           className={({ isActive }) =>
             `flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              isActive ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:bg-slate-50'
+              isActive ? 'bg-brand-green-50 text-brand-green-700' : 'text-slate-500 hover:bg-slate-50'
             }`
           }
         >

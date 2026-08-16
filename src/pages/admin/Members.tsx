@@ -145,7 +145,7 @@ export default function Members() {
         placeholder="Cari nama, kode member, atau no. HP..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
       />
 
       {loading ? (
@@ -160,7 +160,7 @@ export default function Members() {
                   <p className="font-mono text-xs text-slate-400">{member.member_code}</p>
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
-                  <p className="text-sm font-semibold text-emerald-700">{member.points_balance} poin</p>
+                  <p className="text-sm font-semibold text-brand-green-700">{member.points_balance} poin</p>
                   <button
                     onClick={() => toggleActive(member)}
                     disabled={busyId === member.id}
@@ -195,14 +195,14 @@ export default function Members() {
                           placeholder="Jumlah poin"
                           value={deductAmount}
                           onChange={(e) => setDeductAmount(e.target.value)}
-                          className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                          className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-brand-green-500 focus:outline-none"
                         />
                         <input
                           required
                           placeholder="Alasan (mis. poin salah input)"
                           value={deductReason}
                           onChange={(e) => setDeductReason(e.target.value)}
-                          className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                          className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-brand-green-500 focus:outline-none"
                         />
                       </div>
                       <button
@@ -214,7 +214,7 @@ export default function Members() {
                       </button>
                     </form>
                     {deductMessage?.id === member.id && (
-                      <p className={`text-xs ${deductMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <p className={`text-xs ${deductMessage.type === 'success' ? 'text-brand-green-600' : 'text-red-600'}`}>
                         {deductMessage.text}
                       </p>
                     )}
@@ -240,7 +240,7 @@ export default function Members() {
                       </button>
                     </div>
                     {resetMessage?.id === member.id && (
-                      <p className="text-xs text-emerald-600">{resetMessage.text}</p>
+                      <p className="text-xs text-brand-green-600">{resetMessage.text}</p>
                     )}
 
                     <form onSubmit={(e) => handleSetPassword(e, member)} className="flex gap-2">
@@ -251,18 +251,18 @@ export default function Members() {
                         placeholder="Atau langsung set password baru"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-emerald-500 focus:outline-none"
+                        className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-brand-green-500 focus:outline-none"
                       />
                       <button
                         type="submit"
                         disabled={pwBusyId === member.id}
-                        className="shrink-0 rounded-lg bg-emerald-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                        className="shrink-0 rounded-lg bg-brand-green-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-brand-green-700 disabled:opacity-50"
                       >
                         {pwBusyId === member.id ? 'Menyimpan...' : 'Set Password'}
                       </button>
                     </form>
                     {pwMessage?.id === member.id && (
-                      <p className={`text-xs ${pwMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <p className={`text-xs ${pwMessage.type === 'success' ? 'text-brand-green-600' : 'text-red-600'}`}>
                         {pwMessage.text}
                       </p>
                     )}
@@ -278,7 +278,7 @@ export default function Members() {
                           <span>
                             {tx.description ?? tx.type} · {new Date(tx.created_at).toLocaleDateString('id-ID')}
                           </span>
-                          <span className={tx.points >= 0 ? 'text-emerald-600' : 'text-red-500'}>
+                          <span className={tx.points >= 0 ? 'text-brand-green-600' : 'text-red-500'}>
                             {tx.points >= 0 ? '+' : ''}
                             {tx.points}
                           </span>

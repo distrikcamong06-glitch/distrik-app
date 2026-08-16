@@ -41,7 +41,7 @@ export default function ResetPassword() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-center">
         <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h1 className="text-lg font-semibold text-emerald-700">Password berhasil diganti</h1>
+          <h1 className="text-lg font-semibold text-brand-green-700">Password berhasil diganti</h1>
           <p className="mt-2 text-sm text-slate-500">Mengarahkan ke halaman masuk...</p>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function ResetPassword() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-lg font-semibold text-emerald-700">Buat Password Baru</h1>
+        <h1 className="text-lg font-semibold text-brand-green-700">Buat Password Baru</h1>
 
         {!ready ? (
           <p className="mt-4 text-sm text-slate-500">
@@ -67,13 +67,13 @@ export default function ResetPassword() {
               placeholder="Password baru (min. 6 karakter)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
             />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
             >
               {loading ? 'Menyimpan...' : 'Simpan Password Baru'}
             </button>

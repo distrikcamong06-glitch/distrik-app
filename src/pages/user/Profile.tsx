@@ -55,7 +55,7 @@ export default function Profile() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
         </label>
         <label className="text-sm font-medium text-slate-600">
@@ -63,7 +63,7 @@ export default function Profile() {
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
         </label>
         <label className="text-sm font-medium text-slate-600">
@@ -74,12 +74,12 @@ export default function Profile() {
             className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400"
           />
         </label>
-        {message && <p className="text-sm text-emerald-600">{message}</p>}
+        {message && <p className="text-sm text-brand-green-600">{message}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={saving}
-          className="mt-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
         >
           {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
@@ -97,7 +97,7 @@ export default function Profile() {
           placeholder="Password baru"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
         />
         {pwMessage && <p className="text-sm text-slate-500">{pwMessage}</p>}
         <button

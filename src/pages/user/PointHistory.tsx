@@ -51,7 +51,7 @@ export default function PointHistory() {
                   <p className="text-xs text-slate-400">Belanja Rp{tx.amount_spent.toLocaleString('id-ID')}</p>
                 )}
               </div>
-              <p className={`text-sm font-semibold ${tx.points >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+              <p className={`text-sm font-semibold ${tx.points >= 0 ? 'text-brand-green-600' : 'text-red-500'}`}>
                 {tx.points >= 0 ? '+' : ''}
                 {tx.points} poin
               </p>

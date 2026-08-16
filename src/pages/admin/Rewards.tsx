@@ -145,13 +145,13 @@ export default function RewardsAdmin() {
           placeholder="Nama reward"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
         />
         <textarea
           placeholder="Deskripsi (opsional)"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
         />
         <div className="flex items-center gap-3">
           {form.image_url && (
@@ -164,7 +164,7 @@ export default function RewardsAdmin() {
               accept="image/png,image/jpeg,image/webp,image/gif"
               onChange={handleImageUpload}
               disabled={uploading}
-              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
             />
           </label>
         </div>
@@ -177,7 +177,7 @@ export default function RewardsAdmin() {
             placeholder="Harga poin"
             value={form.point_cost}
             onChange={(e) => setForm({ ...form, point_cost: e.target.value })}
-            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
           <input
             type="number"
@@ -185,7 +185,7 @@ export default function RewardsAdmin() {
             placeholder="Stok (kosong = unlimited)"
             value={form.stock}
             onChange={(e) => setForm({ ...form, stock: e.target.value })}
-            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
         </div>
         <label className="text-sm text-slate-600">
@@ -196,7 +196,7 @@ export default function RewardsAdmin() {
             placeholder="Kosong = tidak dibatasi"
             value={form.max_per_user}
             onChange={(e) => setForm({ ...form, max_per_user: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
           <span className="mt-1 block text-xs text-slate-400">
             Contoh: isi 1 supaya tiap member cuma boleh tukar reward ini sekali.
@@ -215,7 +215,7 @@ export default function RewardsAdmin() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="flex-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="flex-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
           >
             {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Reward'}
           </button>
@@ -268,7 +268,7 @@ export default function RewardsAdmin() {
                 >
                   {reward.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                 </button>
-                <button onClick={() => startEdit(reward)} className="text-xs font-medium text-emerald-700">
+                <button onClick={() => startEdit(reward)} className="text-xs font-medium text-brand-green-700">
                   Edit
                 </button>
                 <button onClick={() => handleDelete(reward)} className="text-xs font-medium text-red-500">

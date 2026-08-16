@@ -39,12 +39,12 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          className="rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700"
         >
           Buka
         </button>
@@ -120,7 +120,7 @@ export default function PointRulesAdmin() {
             min={1}
             value={rupiahPerPoint}
             onChange={(e) => setRupiahPerPoint(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
           <p className="mt-1 text-xs text-slate-400">Contoh: 1000 artinya belanja Rp1.000 = 1 poin.</p>
         </label>
@@ -133,7 +133,7 @@ export default function PointRulesAdmin() {
             min={0}
             value={signupBonus}
             onChange={(e) => setSignupBonus(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
         </label>
 
@@ -144,7 +144,7 @@ export default function PointRulesAdmin() {
             min={1}
             value={expiryDays}
             onChange={(e) => setExpiryDays(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
         </label>
 
@@ -155,7 +155,7 @@ export default function PointRulesAdmin() {
             min={1}
             value={maxRedemptionsPerDay}
             onChange={(e) => setMaxRedemptionsPerDay(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
           <p className="mt-1 text-xs text-slate-400">
             Total penukaran reward apapun per member per hari, digabung semua produk. Terpisah dari batas per
@@ -163,11 +163,11 @@ export default function PointRulesAdmin() {
           </p>
         </label>
 
-        {message && <p className="text-sm text-emerald-600">{message}</p>}
+        {message && <p className="text-sm text-brand-green-600">{message}</p>}
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
         >
           {saving ? 'Menyimpan...' : 'Simpan Aturan'}
         </button>

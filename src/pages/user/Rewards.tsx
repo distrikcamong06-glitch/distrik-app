@@ -116,7 +116,7 @@ export default function Rewards() {
                 )}
                 <p className="font-medium text-slate-800">{reward.name}</p>
                 {reward.description && <p className="text-xs text-slate-500">{reward.description}</p>}
-                <p className="text-sm font-semibold text-emerald-700">{reward.point_cost} poin</p>
+                <p className="text-sm font-semibold text-brand-green-700">{reward.point_cost} poin</p>
                 {reward.stock !== null && <p className="text-xs text-slate-400">Stok: {reward.stock}</p>}
                 {reward.max_per_user !== null && (
                   <p className="text-xs text-slate-400">
@@ -126,7 +126,7 @@ export default function Rewards() {
                 <button
                   onClick={() => handleRedeem(reward)}
                   disabled={disabled}
-                  className="mt-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
+                  className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-40"
                 >
                   {redeemingId === reward.id
                     ? 'Memproses...'

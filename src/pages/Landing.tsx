@@ -43,7 +43,7 @@ export default function Landing() {
           {profile ? (
             <Link
               to="/app"
-              className="rounded-full bg-brand-green px-4 py-2 text-xs font-semibold text-white hover:bg-brand-green-dark sm:text-sm"
+              className="rounded-full bg-brand-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-green-700 sm:text-sm"
             >
               Buka Aplikasi
             </Link>
@@ -51,13 +51,13 @@ export default function Landing() {
             <>
               <Link
                 to="/login"
-                className="rounded-full border border-brand-green px-4 py-2 text-xs font-semibold text-brand-green hover:bg-white sm:text-sm"
+                className="rounded-full border border-brand-green-600 px-4 py-2 text-xs font-semibold text-brand-green-600 hover:bg-white sm:text-sm"
               >
                 Masuk
               </Link>
               <Link
                 to="/register"
-                className="rounded-full bg-brand-green px-4 py-2 text-xs font-semibold text-white hover:bg-brand-green-dark sm:text-sm"
+                className="rounded-full bg-brand-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-green-700 sm:text-sm"
               >
                 Daftar Member
               </Link>
@@ -71,7 +71,7 @@ export default function Landing() {
         <p className="font-classic text-xs uppercase tracking-[0.3em] text-brand-red sm:text-sm">
           UMKM Susu Segar
         </p>
-        <h1 className="font-classic mt-3 text-3xl font-bold leading-tight text-brand-green sm:text-5xl">
+        <h1 className="font-classic mt-3 text-3xl font-bold leading-tight text-brand-green-600 sm:text-5xl">
           Susu Segar, Langsung dari Distrik Camong
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-sm text-slate-600 sm:text-base">
@@ -103,7 +103,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {FEATURES.map(({ icon: FeatureIcon, title, text }) => (
             <div key={title} className="flex flex-col items-center gap-2 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-green/10 text-brand-green">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-green-600/10 text-brand-green-600">
                 <FeatureIcon size={22} />
               </div>
               <p className="font-classic text-base font-bold text-slate-800">{title}</p>
@@ -116,7 +116,7 @@ export default function Landing() {
       {/* About */}
       <section className="bg-white py-10 sm:py-16">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="font-classic text-2xl font-bold text-brand-green sm:text-3xl">Tentang Kami</h2>
+          <h2 className="font-classic text-2xl font-bold text-brand-green-600 sm:text-3xl">Tentang Kami</h2>
           <div className="mx-auto my-3 h-px w-16 bg-brand-red" />
           <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
             Distrik Camong lahir dari kecintaan pada susu segar berkualitas. Setiap produk kami berasal dari
@@ -133,7 +133,7 @@ export default function Landing() {
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
             <div className="text-center">
               <h2 className="font-classic text-2xl font-bold text-brand-red sm:text-3xl">Promo</h2>
-              <div className="mx-auto my-3 h-px w-16 bg-brand-green" />
+              <div className="mx-auto my-3 h-px w-16 bg-brand-green-600" />
             </div>
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {promos.map((promo) => {
@@ -166,7 +166,7 @@ export default function Landing() {
         <section className="bg-white py-10 sm:py-16">
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
             <div className="text-center">
-              <h2 className="font-classic text-2xl font-bold text-brand-green sm:text-3xl">Galeri</h2>
+              <h2 className="font-classic text-2xl font-bold text-brand-green-600 sm:text-3xl">Galeri</h2>
               <div className="mx-auto my-3 h-px w-16 bg-brand-red" />
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -184,15 +184,15 @@ export default function Landing() {
       )}
 
       {/* Membership CTA */}
-      <section className="bg-brand-green py-10 text-center text-white sm:py-16">
+      <section className="bg-brand-green-600 py-10 text-center text-white sm:py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
           <h2 className="font-classic text-2xl font-bold sm:text-3xl">Member Dapat Poin, Poin Bisa Ditukar</h2>
-          <p className="mt-3 text-sm text-emerald-50 sm:text-base">
+          <p className="mt-3 text-sm text-brand-green-50 sm:text-base">
             Tiap belanja di toko dapat poin otomatis. Kumpulkan dan tukar dengan reward menarik.
           </p>
           <Link
             to={primaryCtaTo}
-            className="mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-green hover:bg-brand-cream"
+            className="mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-green-600 hover:bg-brand-cream"
           >
             {primaryCtaLabel}
           </Link>

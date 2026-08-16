@@ -12,7 +12,7 @@ export default function Barcode() {
         <p className="text-sm text-slate-500">Tunjukkan ini ke kasir saat belanja di toko.</p>
       </div>
 
-      <div className="rounded-2xl bg-emerald-600 p-5 text-white">
+      <div className="rounded-2xl bg-brand-green-600 p-5 text-white">
         <p className="text-sm opacity-80">Saldo Poin</p>
         <p className="text-3xl font-semibold">{profile.points_balance}</p>
       </div>

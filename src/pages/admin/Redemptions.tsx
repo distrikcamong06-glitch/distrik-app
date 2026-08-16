@@ -95,7 +95,7 @@ export default function RedemptionsAdmin() {
         <button
           type="button"
           onClick={() => setScanning((s) => !s)}
-          className="flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 py-2 text-sm font-medium text-emerald-700"
+          className="flex items-center justify-center gap-2 rounded-lg border border-brand-green-200 bg-brand-green-50 py-2 text-sm font-medium text-brand-green-700"
         >
           <Icon name="ScanLine" size={16} />
           {scanning ? 'Tutup Scanner' : 'Scan Barcode Penukaran'}
@@ -108,9 +108,9 @@ export default function RedemptionsAdmin() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Atau ketik kode penukaran..."
-            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
           />
-          <button type="submit" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white">
+          <button type="submit" className="rounded-lg bg-brand-green-600 px-4 py-2 text-sm text-white">
             Cari
           </button>
         </form>
@@ -122,7 +122,7 @@ export default function RedemptionsAdmin() {
             key={s}
             onClick={() => setFilter(s)}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
-              filter === s ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+              filter === s ? 'bg-brand-green-600 text-white' : 'bg-slate-100 text-slate-600'
             }`}
           >
             {s === 'all' ? 'Semua' : STATUS_LABEL[s]}
@@ -154,7 +154,7 @@ export default function RedemptionsAdmin() {
                     <button
                       onClick={() => confirm(r.id)}
                       disabled={busyId === r.id}
-                      className="rounded-lg bg-emerald-600 px-2 py-1 text-xs text-white disabled:opacity-50"
+                      className="rounded-lg bg-brand-green-600 px-2 py-1 text-xs text-white disabled:opacity-50"
                     >
                       Konfirmasi
                     </button>

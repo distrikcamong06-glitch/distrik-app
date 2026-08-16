@@ -21,7 +21,7 @@ export default function RedeemSuccessModal({
           <X size={20} />
         </button>
 
-        <CheckCircle2 size={64} strokeWidth={1.5} className="animate-success-pop text-emerald-500" />
+        <CheckCircle2 size={64} strokeWidth={1.5} className="animate-success-pop text-brand-green-500" />
 
         <div>
           <p className="text-lg font-semibold text-slate-800">Penukaran Berhasil!</p>
@@ -36,7 +36,7 @@ export default function RedeemSuccessModal({
 
         <button
           onClick={onClose}
-          className="mt-1 w-full rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="mt-1 w-full rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700"
         >
           Selesai
         </button>

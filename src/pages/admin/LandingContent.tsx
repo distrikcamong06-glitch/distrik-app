@@ -181,7 +181,7 @@ export default function LandingContentAdmin() {
               accept="image/png,image/jpeg,image/webp,image/gif"
               onChange={handleImageUpload}
               disabled={uploading}
-              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
             />
           </label>
         </div>
@@ -193,19 +193,19 @@ export default function LandingContentAdmin() {
               placeholder="Judul promo (opsional)"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
             />
             <textarea
               placeholder="Deskripsi (opsional)"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
             />
             <input
               placeholder="Link tujuan kalau diklik (opsional)"
               value={form.link_url}
               onChange={(e) => setForm({ ...form, link_url: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
             />
           </>
         )}
@@ -217,7 +217,7 @@ export default function LandingContentAdmin() {
               type="number"
               value={form.order}
               onChange={(e) => setForm({ ...form, order: e.target.value })}
-              className="ml-2 w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-emerald-500 focus:outline-none"
+              className="ml-2 w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-green-500 focus:outline-none"
             />
           </label>
           <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
@@ -235,7 +235,7 @@ export default function LandingContentAdmin() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="flex-1 rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="flex-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
           >
             {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Item'}
           </button>
@@ -313,7 +313,7 @@ function ItemList({
                 >
                   {item.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                 </button>
-                <button onClick={() => onEdit(item)} className="text-xs font-medium text-emerald-700">
+                <button onClick={() => onEdit(item)} className="text-xs font-medium text-brand-green-700">
                   Edit
                 </button>
                 <button onClick={() => onDelete(item)} className="text-xs font-medium text-red-500">

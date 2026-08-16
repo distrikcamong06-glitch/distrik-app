@@ -4,9 +4,22 @@
   --font-classic: "Playfair Display", Georgia, "Times New Roman", serif;
   --color-brand-red: #8a1c1c;
   --color-brand-red-dark: #6b1515;
-  --color-brand-green: #1f5c34;
-  --color-brand-green-dark: #163f24;
   --color-brand-cream: #faf6ee;
+
+  /* Same forest green as the logo, as a full shade scale so the rest of
+     the app (buttons, badges, focus rings) can match the landing page
+     instead of Tailwind's default emerald. 600/700 are the exact brand
+     greens used on the landing page. */
+  --color-brand-green-50: #eef6f0;
+  --color-brand-green-100: #d7ebdc;
+  --color-brand-green-200: #ade0bd;
+  --color-brand-green-300: #7fc699;
+  --color-brand-green-400: #4ea472;
+  --color-brand-green-500: #2f7d4e;
+  --color-brand-green-600: #1f5c34;
+  --color-brand-green-700: #163f24;
+  --color-brand-green-800: #11331d;
+  --color-brand-green-900: #0c2414;
 }
 
 :root {

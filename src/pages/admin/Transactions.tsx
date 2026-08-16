@@ -83,7 +83,7 @@ export default function Transactions() {
         <button
           onClick={exportCsv}
           disabled={transactions.length === 0}
-          className="ml-auto rounded-lg bg-emerald-600 px-3 py-1.5 text-sm text-white disabled:opacity-40"
+          className="ml-auto rounded-lg bg-brand-green-600 px-3 py-1.5 text-sm text-white disabled:opacity-40"
         >
           Export CSV
         </button>
@@ -116,7 +116,7 @@ export default function Transactions() {
                     <span className="block font-mono text-xs text-slate-400">{tx.profiles?.member_code}</span>
                   </td>
                   <td className="px-3 py-2 capitalize text-slate-600">{tx.type}</td>
-                  <td className={`px-3 py-2 font-medium ${tx.points >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  <td className={`px-3 py-2 font-medium ${tx.points >= 0 ? 'text-brand-green-600' : 'text-red-500'}`}>
                     {tx.points >= 0 ? '+' : ''}
                     {tx.points}
                   </td>
