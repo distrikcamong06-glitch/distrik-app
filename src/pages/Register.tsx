@@ -32,7 +32,7 @@ export default function Register() {
     }
 
     if (data.session) {
-      navigate('/', { replace: true });
+      navigate('/app', { replace: true });
     } else {
       setNeedsConfirmation(true);
     }

@@ -16,6 +16,7 @@ const ADMIN_MENU = [
   { label: 'Member', path: '/admin/members', icon: 'Users' },
   { label: 'Penukaran', path: '/admin/redemptions', icon: 'ClipboardList' },
   { label: 'Reward', path: '/admin/rewards', icon: 'Gift' },
+  { label: 'Gambar & Promosi', path: '/admin/landing-content', icon: 'Images' },
   { label: 'Aturan Poin', path: '/admin/point-rules', icon: 'Percent' },
   { label: 'Riwayat Transaksi', path: '/admin/transactions', icon: 'Receipt' },
   { label: 'Profil', path: '/profile', icon: 'User' },

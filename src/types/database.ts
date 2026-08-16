@@ -2,6 +2,7 @@ export type Role = 'admin' | 'user';
 export type MenuRole = 'admin' | 'user' | 'all';
 export type TransactionType = 'earn' | 'redeem' | 'adjust';
 export type RedemptionStatus = 'pending' | 'completed' | 'cancelled';
+export type LandingSection = 'promo' | 'gallery';
 
 export interface Profile {
   id: string;
@@ -60,6 +61,18 @@ export interface Redemption {
   completed_at: string | null;
   rewards?: Pick<Reward, 'name' | 'image_url'>;
   profiles?: Pick<Profile, 'name' | 'member_code'>;
+}
+
+export interface LandingItem {
+  id: string;
+  section: LandingSection;
+  title: string | null;
+  description: string | null;
+  image_url: string;
+  link_url: string | null;
+  order: number;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface Menu {

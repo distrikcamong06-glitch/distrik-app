@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --font-classic: "Playfair Display", Georgia, "Times New Roman", serif;
+  --color-brand-red: #8a1c1c;
+  --color-brand-red-dark: #6b1515;
+  --color-brand-green: #1f5c34;
+  --color-brand-green-dark: #163f24;
+  --color-brand-cream: #faf6ee;
+}
+
 :root {
   color-scheme: light;
 }

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -22,8 +23,9 @@ import RewardsAdmin from './pages/admin/Rewards';
 import PointRulesAdmin from './pages/admin/PointRules';
 import Transactions from './pages/admin/Transactions';
 import RedemptionsAdmin from './pages/admin/Redemptions';
+import LandingContentAdmin from './pages/admin/LandingContent';
 
-function Home() {
+function AppEntry() {
   const { profile, loading } = useAuth();
   if (loading) return null;
   if (!profile) return <Navigate to="/login" replace />;
@@ -44,7 +46,8 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/app" element={<AppEntry />} />
 
           {/* User */}
           <Route
@@ -90,6 +93,10 @@ export default function App() {
           <Route
             path="/admin/redemptions"
             element={<ProtectedRoute role="admin">{withLayout(<RedemptionsAdmin />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/landing-content"
+            element={<ProtectedRoute role="admin">{withLayout(<LandingContentAdmin />)}</ProtectedRoute>}
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />
