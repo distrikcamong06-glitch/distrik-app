@@ -24,3 +24,4 @@ dist-ssr
 *.sln
 *.sw?
 distric-app.code-workspace
+img/

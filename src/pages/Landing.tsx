@@ -139,7 +139,12 @@ export default function Landing() {
               {promos.map((promo) => {
                 const card = (
                   <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-                    <img src={promo.image_url} alt={promo.title ?? ''} className="aspect-square w-full object-cover" />
+                    <img
+                      src={promo.image_url}
+                      alt={promo.title ?? ''}
+                      loading="lazy"
+                      className="aspect-square w-full object-cover"
+                    />
                     {(promo.title || promo.description) && (
                       <div className="flex flex-1 flex-col gap-1 p-4">
                         {promo.title && <p className="font-classic font-bold text-slate-800">{promo.title}</p>}
@@ -175,6 +180,7 @@ export default function Landing() {
                   key={item.id}
                   src={item.image_url}
                   alt={item.title ?? ''}
+                  loading="lazy"
                   className="aspect-square w-full rounded-lg object-cover"
                 />
               ))}

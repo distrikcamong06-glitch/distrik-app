@@ -111,6 +111,7 @@ export default function Rewards() {
                   <img
                     src={reward.image_url}
                     alt={reward.name}
+                    loading="lazy"
                     className="aspect-square w-full rounded-lg object-cover"
                   />
                 )}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { compressImage } from '../../lib/compressImage';
 import type { Reward } from '../../types/database';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -66,11 +67,12 @@ export default function RewardsAdmin() {
     }
 
     setUploading(true);
-    const ext = file.name.split('.').pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split('.').pop();
     const path = `${crypto.randomUUID()}.${ext}`;
 
-    const { error: uploadError } = await supabase.storage.from('rewards').upload(path, file, {
-      cacheControl: '3600',
+    const { error: uploadError } = await supabase.storage.from('rewards').upload(path, compressed, {
+      cacheControl: '31536000',
       upsert: false,
     });
 
@@ -242,6 +244,7 @@ export default function RewardsAdmin() {
                   <img
                     src={reward.image_url}
                     alt={reward.name}
+                    loading="lazy"
                     className="aspect-square h-14 w-14 shrink-0 rounded-lg border border-slate-200 object-cover"
                   />
                 ) : (
