@@ -18,7 +18,12 @@ export default function Rewards() {
   const [loading, setLoading] = useState(true);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<{ rewardName: string; redeemCode: string } | null>(null);
+  const [success, setSuccess] = useState<{
+    rewardName: string;
+    redemptionId: string;
+    redeemCode: string;
+    rotatingToken: string;
+  } | null>(null);
 
   const loadRewards = async () => {
     if (!profile) return;
@@ -65,7 +70,12 @@ export default function Rewards() {
       return;
     }
 
-    setSuccess({ rewardName: reward.name, redeemCode: data.redeem_code });
+    setSuccess({
+      rewardName: reward.name,
+      redemptionId: data.id,
+      redeemCode: data.redeem_code,
+      rotatingToken: data.rotating_token,
+    });
     await Promise.all([loadRewards(), refreshProfile()]);
   };
 
@@ -150,7 +160,9 @@ export default function Rewards() {
       {success && (
         <RedeemSuccessModal
           rewardName={success.rewardName}
+          redemptionId={success.redemptionId}
           redeemCode={success.redeemCode}
+          rotatingToken={success.rotatingToken}
           onClose={() => setSuccess(null)}
         />
       )}

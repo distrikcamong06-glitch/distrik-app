@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Redemption } from '../../types/database';
-import QrCode from '../../components/QrCode';
+import RotatingQr from '../../components/RotatingQr';
 
 const STATUS_LABEL: Record<Redemption['status'], string> = {
   pending: 'Menunggu diambil',
@@ -49,11 +49,18 @@ export default function RedemptionHistory() {
           {redemptions.map((r) => (
             <div key={r.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
               <div className="flex items-center gap-3">
-                {r.status === 'pending' && <QrCode value={r.redeem_code} size={48} />}
+                {r.status === 'pending' && (
+                  <RotatingQr redemptionId={r.id} initialToken={r.rotating_token ?? r.redeem_code} size={48} />
+                )}
                 <div>
                   <p className="text-sm font-medium text-slate-800">{r.rewards?.name}</p>
-                  <p className="font-mono text-xs text-slate-400">{r.redeem_code}</p>
+                  <p className="font-mono text-xs text-slate-400">Ref: {r.redeem_code}</p>
                   <p className="text-xs text-slate-400">{new Date(r.created_at).toLocaleString('id-ID')}</p>
+                  {r.status === 'pending' && r.expires_at && (
+                    <p className="text-xs text-amber-600">
+                      Berlaku sampai {new Date(r.expires_at).toLocaleString('id-ID')}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="text-right">

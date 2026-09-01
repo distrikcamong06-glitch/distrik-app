@@ -1,27 +1,37 @@
 import { CheckCircle2, X } from 'lucide-react';
-import QrCode from './QrCode';
+import Confetti from './Confetti';
+import RotatingQr from './RotatingQr';
 
 export default function RedeemSuccessModal({
   rewardName,
+  redemptionId,
   redeemCode,
+  rotatingToken,
   onClose,
 }: {
   rewardName: string;
+  redemptionId: string;
   redeemCode: string;
+  rotatingToken: string;
   onClose: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="animate-success-in relative flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-white p-6 text-center shadow-xl">
+      <div className="animate-success-in relative flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden rounded-2xl bg-white p-6 text-center shadow-xl">
+        <Confetti />
+
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+          className="absolute right-3 top-3 z-10 text-slate-400 hover:text-slate-600"
           aria-label="Tutup"
         >
           <X size={20} />
         </button>
 
-        <CheckCircle2 size={64} strokeWidth={1.5} className="animate-success-pop text-brand-green-500" />
+        <div className="relative flex items-center justify-center">
+          <span className="animate-glow-pulse absolute h-16 w-16 rounded-full bg-brand-green-400" />
+          <CheckCircle2 size={64} strokeWidth={1.5} className="animate-success-pop relative text-brand-green-500" />
+        </div>
 
         <div>
           <p className="text-lg font-semibold text-slate-800">Penukaran Berhasil!</p>
@@ -29,10 +39,12 @@ export default function RedeemSuccessModal({
         </div>
 
         <div className="rounded-xl border border-slate-200 p-4">
-          <QrCode value={redeemCode} size={160} />
+          <RotatingQr redemptionId={redemptionId} initialToken={rotatingToken} size={160} />
         </div>
-        <p className="font-mono text-sm tracking-wide text-slate-700">{redeemCode}</p>
-        <p className="text-xs text-slate-400">Tunjukkan kode/barcode ini ke kasir untuk ambil reward</p>
+        <p className="font-mono text-xs tracking-wide text-slate-400">Ref: {redeemCode}</p>
+        <p className="text-xs text-slate-400">
+          Tunjukkan QR ini ke kasir untuk ambil reward. Berlaku 24 jam, lalu otomatis hangus dan poin dikembalikan.
+        </p>
 
         <button
           onClick={onClose}

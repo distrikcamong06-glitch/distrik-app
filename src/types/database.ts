@@ -59,6 +59,9 @@ export interface Redemption {
   status: RedemptionStatus;
   created_at: string;
   completed_at: string | null;
+  expires_at: string | null;
+  rotating_token: string | null;
+  rotating_token_expires_at: string | null;
   rewards?: Pick<Reward, 'name' | 'image_url'>;
   profiles?: Pick<Profile, 'name' | 'member_code'>;
 }

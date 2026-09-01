@@ -38,16 +38,34 @@ export default function RedemptionsAdmin() {
 
   const lookupCode = async (rawCode: string) => {
     setMessage(null);
+    // Strip anything that isn't part of our generated codes so this can't
+    // break PostgREST's .or() filter syntax.
+    const safeCode = rawCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!safeCode) return;
+
     const { data } = await supabase
       .from('redemptions')
       .select('*, rewards(name, image_url), profiles(name, member_code)')
-      .eq('redeem_code', rawCode.trim().toUpperCase())
+      .or(`redeem_code.eq.${safeCode},rotating_token.eq.${safeCode}`)
       .maybeSingle();
+
     if (!data) {
-      setMessage('Kode penukaran tidak ditemukan.');
+      setMessage('Kode penukaran tidak ditemukan. Kalau ini dari scan QR, minta member buka lagi halamannya — kodenya berubah tiap 2 menit.');
       return;
     }
-    setRedemptions([data as Redemption]);
+
+    const row = data as Redemption;
+    if (
+      row.status === 'pending' &&
+      row.rotating_token === safeCode &&
+      row.rotating_token_expires_at &&
+      new Date(row.rotating_token_expires_at) < new Date()
+    ) {
+      setMessage('Kode QR ini sudah kedaluwarsa (berubah tiap 2 menit) — minta member buka lagi halaman penukarannya untuk dapat kode baru.');
+      return;
+    }
+
+    setRedemptions([row]);
     setFilter('all');
   };
 
@@ -146,6 +164,11 @@ export default function RedemptionsAdmin() {
                   {r.profiles?.name} · {r.profiles?.member_code}
                 </p>
                 <p className="font-mono text-xs text-slate-400">{r.redeem_code}</p>
+                {r.status === 'pending' && r.expires_at && (
+                  <p className="text-xs text-amber-600">
+                    Berlaku sampai {new Date(r.expires_at).toLocaleString('id-ID')}
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-500">{STATUS_LABEL[r.status]}</span>

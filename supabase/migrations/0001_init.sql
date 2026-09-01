@@ -60,8 +60,13 @@ create table public.redemptions (
   redeem_code text not null unique,
   status text not null default 'pending' check (status in ('pending', 'completed', 'cancelled')),
   created_at timestamptz not null default now(),
-  completed_at timestamptz
+  completed_at timestamptz,
+  expires_at timestamptz, -- pending redemptions auto-cancel + refund past this (24h from creation)
+  rotating_token text, -- what the QR actually encodes; refreshed every 2min so a screenshot goes stale
+  rotating_token_expires_at timestamptz
 );
+
+create index redemptions_rotating_token_idx on public.redemptions (rotating_token);
 
 create table public.menus (
   id uuid primary key default gen_random_uuid(),
@@ -255,6 +260,7 @@ declare
   v_daily_limit int;
   v_today_count int;
   v_code text;
+  v_token text;
   v_row public.redemptions;
 begin
   if v_user_id is null then
@@ -307,12 +313,55 @@ begin
   end if;
 
   v_code := upper(substr(md5(random()::text || clock_timestamp()::text), 1, 10));
+  v_token := upper(substr(md5(random()::text || clock_timestamp()::text || 'tok'), 1, 8));
 
   insert into public.point_transactions (user_id, type, points, description)
   values (v_user_id, 'redeem', -v_reward.point_cost, 'Tukar reward: ' || v_reward.name);
 
-  insert into public.redemptions (user_id, reward_id, points_used, redeem_code, status)
-  values (v_user_id, p_reward_id, v_reward.point_cost, v_code, 'pending')
+  insert into public.redemptions
+    (user_id, reward_id, points_used, redeem_code, status, expires_at, rotating_token, rotating_token_expires_at)
+  values
+    (v_user_id, p_reward_id, v_reward.point_cost, v_code, 'pending',
+     now() + interval '24 hours', v_token, now() + interval '2 minutes')
+  returning * into v_row;
+
+  return v_row;
+end;
+$$;
+
+-- Called by the member's device every ~2 minutes while a pending
+-- redemption's QR is on screen, so a screenshot of it goes stale fast.
+create or replace function public.refresh_redemption_token(p_redemption_id uuid)
+returns public.redemptions
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_row public.redemptions;
+  v_new_token text;
+begin
+  if v_user_id is null then
+    raise exception 'must be logged in';
+  end if;
+
+  select * into v_row from public.redemptions where id = p_redemption_id for update;
+  if v_row is null or v_row.user_id <> v_user_id then
+    raise exception 'redemption not found';
+  end if;
+  if v_row.status <> 'pending' then
+    raise exception 'redemption is not pending';
+  end if;
+  if v_row.expires_at is not null and now() > v_row.expires_at then
+    raise exception 'redemption has expired';
+  end if;
+
+  v_new_token := upper(substr(md5(random()::text || clock_timestamp()::text || 'tok'), 1, 8));
+
+  update public.redemptions
+  set rotating_token = v_new_token, rotating_token_expires_at = now() + interval '2 minutes'
+  where id = p_redemption_id
   returning * into v_row;
 
   return v_row;
@@ -332,14 +381,27 @@ begin
     raise exception 'only admin can confirm a redemption';
   end if;
 
-  update public.redemptions
-  set status = 'completed', completed_at = now()
-  where id = p_redemption_id and status = 'pending'
-  returning * into v_row;
-
+  select * into v_row from public.redemptions where id = p_redemption_id and status = 'pending' for update;
   if v_row is null then
     raise exception 'redemption not found or already processed';
   end if;
+
+  if v_row.expires_at is not null and now() > v_row.expires_at then
+    perform set_config('app.bypass_profile_guard', 'true', true);
+    update public.profiles set points_balance = points_balance + v_row.points_used where id = v_row.user_id;
+    update public.rewards set stock = stock + 1 where id = v_row.reward_id and stock is not null;
+    update public.redemptions set status = 'cancelled' where id = p_redemption_id;
+
+    insert into public.point_transactions (user_id, type, points, description)
+    values (v_row.user_id, 'adjust', v_row.points_used, 'Penukaran reward kedaluwarsa (24 jam), poin dikembalikan otomatis');
+
+    raise exception 'this redemption expired 24 hours after it was created — it was auto-cancelled and the points were refunded to the member';
+  end if;
+
+  update public.redemptions
+  set status = 'completed', completed_at = now()
+  where id = p_redemption_id
+  returning * into v_row;
 
   return v_row;
 end;
@@ -530,6 +592,7 @@ grant execute on function public.confirm_redemption(uuid) to authenticated;
 grant execute on function public.cancel_redemption(uuid) to authenticated;
 grant execute on function public.admin_redeem_reward(text, uuid) to authenticated;
 grant execute on function public.admin_deduct_points(text, int, text) to authenticated;
+grant execute on function public.refresh_redemption_token(uuid) to authenticated;
 
 -- ============================================================================
 -- ROW LEVEL SECURITY
