@@ -43,12 +43,16 @@ export default function RedemptionsAdmin() {
     const safeCode = rawCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (!safeCode) return;
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('redemptions')
       .select('*, rewards(name, image_url), profiles(name, member_code)')
       .or(`redeem_code.eq.${safeCode},rotating_token.eq.${safeCode}`)
       .maybeSingle();
 
+    if (error) {
+      setMessage(`Gagal mencari: ${error.message}`);
+      return;
+    }
     if (!data) {
       setMessage('Kode penukaran tidak ditemukan. Kalau ini dari scan QR, minta member buka lagi halamannya — kodenya berubah tiap 2 menit.');
       return;

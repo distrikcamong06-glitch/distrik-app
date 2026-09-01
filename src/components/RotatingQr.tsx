@@ -15,16 +15,23 @@ export default function RotatingQr({
 }) {
   const [token, setToken] = useState(initialToken);
   const [secondsLeft, setSecondsLeft] = useState(120);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setToken(initialToken);
     setSecondsLeft(120);
+    setError(null);
 
     const refresh = async () => {
-      const { data } = await supabase.rpc('refresh_redemption_token', { p_redemption_id: redemptionId });
+      const { data, error } = await supabase.rpc('refresh_redemption_token', { p_redemption_id: redemptionId });
+      if (error) {
+        setError(error.message);
+        return;
+      }
       if (data?.rotating_token) {
         setToken(data.rotating_token);
         setSecondsLeft(120);
+        setError(null);
       }
     };
 
@@ -46,7 +53,14 @@ export default function RotatingQr({
   return (
     <div className="flex flex-col items-center gap-1">
       <QrCode value={token} size={size} />
-      <p className="text-[11px] text-slate-400">Kode berubah otomatis dalam {secondsLeft}s</p>
+      <p className="font-mono text-xs tracking-wider text-slate-600">{token}</p>
+      {error ? (
+        <p className="max-w-[220px] text-center text-[11px] text-red-500">{error}</p>
+      ) : (
+        <p className="text-[11px] text-slate-400">
+          Kalau kamera susah scan, ketik kode di atas — berubah otomatis dalam {secondsLeft}s
+        </p>
+      )}
     </div>
   );
 }
