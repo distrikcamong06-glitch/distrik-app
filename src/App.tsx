@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -15,6 +16,8 @@ import Profile from './pages/user/Profile';
 import Rewards from './pages/user/Rewards';
 import RedemptionHistory from './pages/user/RedemptionHistory';
 import PointHistory from './pages/user/PointHistory';
+import Products from './pages/user/Products';
+import OrderHistory from './pages/user/OrderHistory';
 
 import Dashboard from './pages/admin/Dashboard';
 import Scan from './pages/admin/Scan';
@@ -24,6 +27,9 @@ import PointRulesAdmin from './pages/admin/PointRules';
 import Transactions from './pages/admin/Transactions';
 import RedemptionsAdmin from './pages/admin/Redemptions';
 import LandingContentAdmin from './pages/admin/LandingContent';
+import ProductsAdmin from './pages/admin/Products';
+import PromosAdmin from './pages/admin/Promos';
+import OrdersAdmin from './pages/admin/Orders';
 
 function AppEntry() {
   const { profile, loading } = useAuth();
@@ -40,6 +46,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CartProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -66,6 +73,14 @@ export default function App() {
           <Route
             path="/points-history"
             element={<ProtectedRoute role="user">{withLayout(<PointHistory />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/products"
+            element={<ProtectedRoute role="user">{withLayout(<Products />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/orders/history"
+            element={<ProtectedRoute role="user">{withLayout(<OrderHistory />)}</ProtectedRoute>}
           />
 
           {/* Admin */}
@@ -98,9 +113,22 @@ export default function App() {
             path="/admin/landing-content"
             element={<ProtectedRoute role="admin">{withLayout(<LandingContentAdmin />)}</ProtectedRoute>}
           />
+          <Route
+            path="/admin/products"
+            element={<ProtectedRoute role="admin">{withLayout(<ProductsAdmin />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/promos"
+            element={<ProtectedRoute role="admin">{withLayout(<PromosAdmin />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/orders"
+            element={<ProtectedRoute role="admin">{withLayout(<OrdersAdmin />)}</ProtectedRoute>}
+          />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

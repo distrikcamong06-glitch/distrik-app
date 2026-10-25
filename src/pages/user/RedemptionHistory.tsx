@@ -50,7 +50,7 @@ export default function RedemptionHistory() {
             <div key={r.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
               <div className="flex items-center gap-3">
                 {r.status === 'pending' && (
-                  <RotatingQr redemptionId={r.id} initialToken={r.rotating_token ?? r.redeem_code} size={48} />
+                  <RotatingQr id={r.id} kind="redemption" initialToken={r.rotating_token ?? r.redeem_code} size={48} />
                 )}
                 <div>
                   <p className="text-sm font-medium text-slate-800">{r.rewards?.name}</p>

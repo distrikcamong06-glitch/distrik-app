@@ -4,6 +4,8 @@ import Icon from './Icon';
 
 const USER_MENU = [
   { label: 'Barcode Saya', path: '/barcode', icon: 'QrCode' },
+  { label: 'Produk', path: '/products', icon: 'ShoppingBag' },
+  { label: 'Pesanan Saya', path: '/orders/history', icon: 'PackageCheck' },
   { label: 'Tukar Poin', path: '/rewards', icon: 'Gift' },
   { label: 'Riwayat Penukaran', path: '/rewards/history', icon: 'History' },
   { label: 'Riwayat Poin', path: '/points-history', icon: 'Receipt' },
@@ -16,6 +18,9 @@ const ADMIN_MENU = [
   { label: 'Member', path: '/admin/members', icon: 'Users' },
   { label: 'Penukaran', path: '/admin/redemptions', icon: 'ClipboardList' },
   { label: 'Reward', path: '/admin/rewards', icon: 'Gift' },
+  { label: 'Produk', path: '/admin/products', icon: 'ShoppingBag' },
+  { label: 'Promo', path: '/admin/promos', icon: 'Tag' },
+  { label: 'Pesanan', path: '/admin/orders', icon: 'PackageCheck' },
   { label: 'Gambar & Promosi', path: '/admin/landing-content', icon: 'Images' },
   { label: 'Aturan Poin', path: '/admin/point-rules', icon: 'Percent' },
   { label: 'Riwayat Transaksi', path: '/admin/transactions', icon: 'Receipt' },

@@ -3,6 +3,8 @@ export type MenuRole = 'admin' | 'user' | 'all';
 export type TransactionType = 'earn' | 'redeem' | 'adjust';
 export type RedemptionStatus = 'pending' | 'completed' | 'cancelled';
 export type LandingSection = 'promo' | 'gallery';
+export type OrderStatus = 'pending' | 'completed' | 'cancelled';
+export type DiscountType = 'percent' | 'fixed';
 
 export interface Profile {
   id: string;
@@ -76,6 +78,62 @@ export interface LandingItem {
   order: number;
   is_active: boolean;
   created_at: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  price: number;
+  stock: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Promo {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  discount_type: DiscountType;
+  discount_value: number;
+  min_order_amount: number | null;
+  max_uses_per_user: number;
+  is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  product_name: string;
+  unit_price: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  subtotal: number;
+  discount_amount: number;
+  total: number;
+  promo_id: string | null;
+  order_code: string;
+  status: OrderStatus;
+  rotating_token: string | null;
+  rotating_token_expires_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  completed_at: string | null;
+  order_items?: OrderItem[];
+  promos?: Pick<Promo, 'title'>;
+  profiles?: Pick<Profile, 'name' | 'member_code'>;
 }
 
 export interface Menu {

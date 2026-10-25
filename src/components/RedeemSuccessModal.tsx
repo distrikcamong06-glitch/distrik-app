@@ -39,7 +39,7 @@ export default function RedeemSuccessModal({
         </div>
 
         <div className="rounded-xl border border-slate-200 p-4">
-          <RotatingQr redemptionId={redemptionId} initialToken={rotatingToken} size={160} />
+          <RotatingQr id={redemptionId} kind="redemption" initialToken={rotatingToken} size={160} />
         </div>
         <p className="font-mono text-xs tracking-wide text-slate-400">Ref: {redeemCode}</p>
         <p className="text-xs text-slate-400">

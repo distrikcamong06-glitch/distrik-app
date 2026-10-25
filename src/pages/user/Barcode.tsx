@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import { formatRupiah } from '../../lib/currency';
 import BarcodeDisplay from '../../components/BarcodeDisplay';
-import type { LandingItem, Reward } from '../../types/database';
+import type { LandingItem, Product, Reward } from '../../types/database';
 
 export default function Barcode() {
   const { profile } = useAuth();
   const [promos, setPromos] = useState<LandingItem[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     supabase
@@ -27,6 +29,14 @@ export default function Barcode() {
       .order('point_cost', { ascending: true })
       .limit(6)
       .then(({ data }) => setRewards((data as Reward[]) ?? []));
+
+    supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(6)
+      .then(({ data }) => setProducts((data as Product[]) ?? []));
   }, []);
 
   if (!profile) return null;
@@ -94,6 +104,43 @@ export default function Barcode() {
                 <div className="p-2">
                   <p className="truncate text-xs font-medium text-slate-700">{reward.name}</p>
                   <p className="text-xs font-semibold text-brand-green-700">{reward.point_cost} poin</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {products.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-slate-700">Produk Pilihan</p>
+            <Link to="/products" className="text-xs font-medium text-brand-green-700">
+              Pesan sekarang
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {products.map((product) => (
+              <Link
+                key={product.id}
+                to="/products"
+                className="w-32 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+              >
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-square w-full items-center justify-center bg-slate-50 text-[10px] text-slate-300">
+                    Tanpa foto
+                  </div>
+                )}
+                <div className="p-2">
+                  <p className="truncate text-xs font-medium text-slate-700">{product.name}</p>
+                  <p className="text-xs font-semibold text-brand-green-700">{formatRupiah(product.price)}</p>
                 </div>
               </Link>
             ))}

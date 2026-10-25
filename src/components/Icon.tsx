@@ -13,6 +13,9 @@ import {
   LogOut,
   Images,
   Megaphone,
+  ShoppingBag,
+  Tag,
+  PackageCheck,
   Circle,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
@@ -32,6 +35,9 @@ const ICONS: Record<string, React.ComponentType<LucideProps>> = {
   LogOut,
   Images,
   Megaphone,
+  ShoppingBag,
+  Tag,
+  PackageCheck,
 };
 
 interface IconProps extends Omit<LucideProps, 'name'> {

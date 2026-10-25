@@ -4,12 +4,19 @@ import QrCode from './QrCode';
 
 const ROTATE_MS = 2 * 60 * 1000;
 
+const RPC_BY_KIND = {
+  redemption: { fn: 'refresh_redemption_token', arg: 'p_redemption_id' },
+  order: { fn: 'refresh_order_token', arg: 'p_order_id' },
+} as const;
+
 export default function RotatingQr({
-  redemptionId,
+  id,
+  kind = 'redemption',
   initialToken,
   size = 140,
 }: {
-  redemptionId: string;
+  id: string;
+  kind?: keyof typeof RPC_BY_KIND;
   initialToken: string;
   size?: number;
 }) {
@@ -22,8 +29,10 @@ export default function RotatingQr({
     setSecondsLeft(120);
     setError(null);
 
+    const { fn, arg } = RPC_BY_KIND[kind];
+
     const refresh = async () => {
-      const { data, error } = await supabase.rpc('refresh_redemption_token', { p_redemption_id: redemptionId });
+      const { data, error } = await supabase.rpc(fn, { [arg]: id });
       if (error) {
         setError(error.message);
         return;
@@ -36,8 +45,8 @@ export default function RotatingQr({
     };
 
     // Always refresh right away too — the token we were handed could
-    // already be stale (e.g. the member closed and reopened this page
-    // more than 2 minutes after it was first issued).
+    // already be stale (e.g. reopening this page more than 2 minutes
+    // after it was first issued).
     refresh();
 
     const rotateInterval = setInterval(refresh, ROTATE_MS);
@@ -48,7 +57,7 @@ export default function RotatingQr({
       clearInterval(tickInterval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redemptionId]);
+  }, [id, kind]);
 
   return (
     <div className="flex flex-col items-center gap-1">
