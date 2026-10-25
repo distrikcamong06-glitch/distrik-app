@@ -51,7 +51,7 @@ export default function PointHistory() {
             return (
               <div
                 key={tx.id}
-                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm"
+                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
               >
                 <div
                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${

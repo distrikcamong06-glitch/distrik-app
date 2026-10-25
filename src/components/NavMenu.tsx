@@ -3,12 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 import Icon from './Icon';
 
 const USER_MENU = [
-  { label: 'Barcode Saya', path: '/barcode', icon: 'QrCode' },
+  { label: 'Beranda', path: '/home', icon: 'Home' },
   { label: 'Produk', path: '/products', icon: 'ShoppingBag' },
-  { label: 'Pesanan Saya', path: '/orders/history', icon: 'PackageCheck' },
-  { label: 'Tukar Poin', path: '/rewards', icon: 'Gift' },
-  { label: 'Riwayat Penukaran', path: '/rewards/history', icon: 'History' },
-  { label: 'Riwayat Poin', path: '/points-history', icon: 'Receipt' },
+  { label: 'Reward', path: '/rewards', icon: 'Gift' },
+  { label: 'Barcode', path: '/barcode', icon: 'QrCode' },
   { label: 'Profil', path: '/profile', icon: 'User' },
 ];
 
@@ -41,8 +39,10 @@ export default function NavMenu() {
           to={item.path}
           end
           className={({ isActive }) =>
-            `flex shrink-0 flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors ${
-              isActive ? 'bg-brand-green-50 text-brand-green-700' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+            `flex shrink-0 flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] transition-colors ${
+              isActive
+                ? 'bg-brand-green-50 font-semibold text-brand-green-700'
+                : 'font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-600'
             }`
           }
         >

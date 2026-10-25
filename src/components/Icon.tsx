@@ -22,6 +22,9 @@ import {
   ArrowDownRight,
   PackageOpen,
   Lock,
+  Search,
+  Star,
+  Home as HomeIcon,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 
@@ -48,6 +51,9 @@ const ICONS: Record<string, React.ComponentType<LucideProps>> = {
   ArrowDownRight,
   PackageOpen,
   Lock,
+  Search,
+  Star,
+  Home: HomeIcon,
 };
 
 interface IconProps extends Omit<LucideProps, 'name'> {

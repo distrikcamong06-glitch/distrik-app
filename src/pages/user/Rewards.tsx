@@ -122,7 +122,7 @@ export default function Rewards() {
             return (
               <div
                 key={reward.id}
-                className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)]"
               >
                 {reward.image_url ? (
                   <img

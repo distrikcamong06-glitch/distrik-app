@@ -51,7 +51,7 @@ export default function RedemptionHistory() {
       ) : (
         <div className="flex flex-col gap-3">
           {redemptions.map((r) => (
-            <div key={r.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div key={r.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-700">{r.rewards?.name}</p>

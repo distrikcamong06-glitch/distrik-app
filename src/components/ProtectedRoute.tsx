@@ -35,7 +35,7 @@ export default function ProtectedRoute({
   }
 
   if (role && profile.role !== role) {
-    return <Navigate to={profile.role === 'admin' ? '/admin' : '/barcode'} replace />;
+    return <Navigate to={profile.role === 'admin' ? '/admin' : '/home'} replace />;
   }
 
   return <>{children}</>;

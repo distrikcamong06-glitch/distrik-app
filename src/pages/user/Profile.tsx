@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import Icon from '../../components/Icon';
 
+const MENU_LINKS = [
+  { label: 'Riwayat Poin', to: '/points-history', icon: 'Receipt' },
+  { label: 'Riwayat Penukaran', to: '/rewards/history', icon: 'History' },
+  { label: 'Riwayat Pesanan', to: '/orders/history', icon: 'PackageCheck' },
+];
+
 export default function Profile() {
-  const { profile, session, refreshProfile } = useAuth();
+  const { profile, session, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState(profile?.name ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [saving, setSaving] = useState(false);
@@ -45,19 +53,53 @@ export default function Profile() {
 
   const initial = profile.name?.trim()?.[0]?.toUpperCase() ?? '?';
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-green-100 text-lg font-semibold text-brand-green-700">
-          {initial}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green-600 to-brand-green-700 p-5 text-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/10" />
+        <div className="absolute -bottom-10 -right-2 h-24 w-24 rounded-full bg-white/10" />
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-lg font-semibold">
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold">{profile.name}</h1>
+            <p className="truncate text-xs text-brand-green-50/80">{session.user.email}</p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold text-slate-800">{profile.name}</h1>
-          <p className="truncate text-sm text-slate-500">{session.user.email}</p>
+        <div className="relative mt-4 border-t border-white/15 pt-3">
+          <p className="text-xs text-brand-green-50/80">Saldo Poin</p>
+          <p className="text-2xl font-semibold tracking-tight">{profile.points_balance}</p>
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-col divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        {MENU_LINKS.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <Icon name={item.icon} size={18} className="text-slate-400" />
+            <span className="flex-1">{item.label}</span>
+            <Icon name="ChevronRight" size={16} className="text-slate-300" />
+          </Link>
+        ))}
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+        >
+          <Icon name="LogOut" size={18} />
+          <span className="flex-1">Keluar</span>
+        </button>
+      </div>
+
+      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         <p className="text-sm font-semibold text-slate-700">Data Diri</p>
         <label className="text-sm font-medium text-slate-600">
           Nama
@@ -96,7 +138,7 @@ export default function Profile() {
 
       <form
         onSubmit={handlePasswordChange}
-        className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+        className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
       >
         <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
           <Icon name="Lock" size={15} className="text-slate-400" />

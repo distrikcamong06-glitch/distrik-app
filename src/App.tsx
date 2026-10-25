@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
+import Home from './pages/user/Home';
 import Barcode from './pages/user/Barcode';
 import Profile from './pages/user/Profile';
 import Rewards from './pages/user/Rewards';
@@ -35,7 +36,7 @@ function AppEntry() {
   const { profile, loading } = useAuth();
   if (loading) return null;
   if (!profile) return <Navigate to="/login" replace />;
-  return <Navigate to={profile.role === 'admin' ? '/admin' : '/barcode'} replace />;
+  return <Navigate to={profile.role === 'admin' ? '/admin' : '/home'} replace />;
 }
 
 function withLayout(node: ReactNode) {
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/app" element={<AppEntry />} />
 
           {/* User */}
+          <Route path="/home" element={<ProtectedRoute role="user">{withLayout(<Home />)}</ProtectedRoute>} />
           <Route
             path="/barcode"
             element={<ProtectedRoute role="user">{withLayout(<Barcode />)}</ProtectedRoute>}
