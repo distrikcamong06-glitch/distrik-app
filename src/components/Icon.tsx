@@ -17,6 +17,11 @@ import {
   Tag,
   PackageCheck,
   Circle,
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight,
+  PackageOpen,
+  Lock,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 
@@ -38,6 +43,11 @@ const ICONS: Record<string, React.ComponentType<LucideProps>> = {
   ShoppingBag,
   Tag,
   PackageCheck,
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight,
+  PackageOpen,
+  Lock,
 };
 
 interface IconProps extends Omit<LucideProps, 'name'> {

@@ -4,7 +4,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { formatRupiah } from '../../lib/currency';
 import BarcodeDisplay from '../../components/BarcodeDisplay';
+import Icon from '../../components/Icon';
 import type { LandingItem, Product, Reward } from '../../types/database';
+
+function SectionHeader({ title, to, cta }: { title: string; to: string; cta: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <p className="text-sm font-semibold text-slate-700">{title}</p>
+      <Link to={to} className="flex items-center gap-0.5 text-xs font-medium text-brand-green-700">
+        {cta}
+        <Icon name="ChevronRight" size={14} />
+      </Link>
+    </div>
+  );
+}
 
 export default function Barcode() {
   const { profile } = useAuth();
@@ -42,14 +55,14 @@ export default function Barcode() {
   if (!profile) return null;
 
   return (
-    <div className="flex flex-col gap-5">
-      <p className="text-lg font-semibold text-slate-800">Hai, {profile.name.split(' ')[0]}! 👋</p>
+    <div className="flex flex-col gap-6">
+      <p className="text-xl font-semibold text-slate-800">Hai, {profile.name.split(' ')[0]}! 👋</p>
 
       {promos.length > 0 && (
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1">
+        <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1">
           {promos.map((promo) => {
             const card = (
-              <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
                 <img src={promo.image_url} alt={promo.title ?? ''} loading="lazy" className="aspect-[16/9] w-full object-cover" />
                 {promo.title && (
                   <p className="truncate px-3 py-2 text-sm font-medium text-slate-700">{promo.title}</p>
@@ -67,27 +80,24 @@ export default function Barcode() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-brand-green-600 p-5 text-white">
-        <p className="text-sm opacity-80">Saldo Poin</p>
-        <p className="text-3xl font-semibold">{profile.points_balance}</p>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green-600 to-brand-green-700 p-5 text-white shadow-sm">
+        <div className="absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/10" />
+        <div className="absolute -bottom-10 -right-2 h-24 w-24 rounded-full bg-white/10" />
+        <p className="relative text-sm text-brand-green-50/90">Saldo Poin</p>
+        <p className="relative text-3xl font-semibold tracking-tight">{profile.points_balance}</p>
       </div>
 
       <BarcodeDisplay memberCode={profile.member_code} />
 
       {rewards.length > 0 && (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-700">Reward Unggulan</p>
-            <Link to="/rewards" className="text-xs font-medium text-brand-green-700">
-              Lihat semua
-            </Link>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <SectionHeader title="Reward Unggulan" to="/rewards" cta="Lihat semua" />
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
             {rewards.map((reward) => (
               <Link
                 key={reward.id}
                 to="/rewards"
-                className="w-32 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                className="w-32 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 {reward.image_url ? (
                   <img
@@ -113,18 +123,13 @@ export default function Barcode() {
 
       {products.length > 0 && (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-700">Produk Pilihan</p>
-            <Link to="/products" className="text-xs font-medium text-brand-green-700">
-              Pesan sekarang
-            </Link>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <SectionHeader title="Produk Pilihan" to="/products" cta="Pesan sekarang" />
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
             {products.map((product) => (
               <Link
                 key={product.id}
                 to="/products"
-                className="w-32 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                className="w-32 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 {product.image_url ? (
                   <img

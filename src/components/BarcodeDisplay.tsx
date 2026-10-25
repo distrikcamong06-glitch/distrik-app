@@ -8,11 +8,11 @@ export default function BarcodeDisplay({ memberCode }: { memberCode: string }) {
     <>
       <button
         onClick={() => setZoomed(true)}
-        className="flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md active:scale-[0.99]"
       >
         <QRCodeSVG value={memberCode} size={200} level="M" />
-        <p className="font-mono text-sm tracking-wide text-slate-700">{memberCode}</p>
-        <p className="text-xs text-slate-400">Ketuk untuk perbesar</p>
+        <p className="font-mono text-base font-medium tracking-wide text-slate-700">{memberCode}</p>
+        <p className="text-xs text-slate-400">Tunjukkan ke kasir · ketuk untuk perbesar</p>
       </button>
 
       {zoomed && (

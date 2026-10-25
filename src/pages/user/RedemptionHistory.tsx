@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Redemption } from '../../types/database';
 import RotatingQr from '../../components/RotatingQr';
+import Icon from '../../components/Icon';
 
 const STATUS_LABEL: Record<Redemption['status'], string> = {
   pending: 'Menunggu diambil',
@@ -43,31 +44,42 @@ export default function RedemptionHistory() {
       {loading ? (
         <p className="text-sm text-slate-400">Memuat...</p>
       ) : redemptions.length === 0 ? (
-        <p className="text-sm text-slate-400">Belum ada penukaran.</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white py-10 text-center">
+          <Icon name="PackageOpen" size={28} className="text-slate-300" />
+          <p className="text-sm text-slate-400">Belum ada penukaran.</p>
+        </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {redemptions.map((r) => (
-            <div key={r.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-              <div className="flex items-center gap-3">
-                {r.status === 'pending' && (
-                  <RotatingQr id={r.id} kind="redemption" initialToken={r.rotating_token ?? r.redeem_code} size={48} />
-                )}
-                <div>
-                  <p className="text-sm font-medium text-slate-800">{r.rewards?.name}</p>
-                  <p className="font-mono text-xs text-slate-400">Ref: {r.redeem_code}</p>
+            <div key={r.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-slate-700">{r.rewards?.name}</p>
+                  <p className="mt-0.5 font-mono text-xs text-slate-400">Ref: {r.redeem_code}</p>
                   <p className="text-xs text-slate-400">{new Date(r.created_at).toLocaleString('id-ID')}</p>
-                  {r.status === 'pending' && r.expires_at && (
-                    <p className="text-xs text-amber-600">
-                      Berlaku sampai {new Date(r.expires_at).toLocaleString('id-ID')}
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${STATUS_STYLE[r.status]}`}
+                >
+                  {STATUS_LABEL[r.status]}
+                </span>
+              </div>
+
+              {r.status === 'pending' && (
+                <div className="flex items-center gap-3 rounded-xl bg-amber-50/60 p-3">
+                  <RotatingQr id={r.id} kind="redemption" initialToken={r.rotating_token ?? r.redeem_code} size={48} />
+                  {r.expires_at && (
+                    <p className="text-xs text-amber-700">
+                      Berlaku sampai<br />
+                      <span className="font-medium">{new Date(r.expires_at).toLocaleString('id-ID')}</span>
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-slate-700">{r.points_used} poin</p>
-                <span className={`inline-block rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[r.status]}`}>
-                  {STATUS_LABEL[r.status]}
-                </span>
+              )}
+
+              <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                <span className="text-xs text-slate-400">Poin digunakan</span>
+                <span className="text-sm font-semibold text-slate-800">{r.points_used} poin</span>
               </div>
             </div>
           ))}

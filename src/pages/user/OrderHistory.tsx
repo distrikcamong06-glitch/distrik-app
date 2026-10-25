@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { formatRupiah } from '../../lib/currency';
 import type { Order } from '../../types/database';
 import RotatingQr from '../../components/RotatingQr';
+import Icon from '../../components/Icon';
 
 const STATUS_LABEL: Record<Order['status'], string> = {
   pending: 'Menunggu diambil',
@@ -44,31 +45,44 @@ export default function OrderHistory() {
       {loading ? (
         <p className="text-sm text-slate-400">Memuat...</p>
       ) : orders.length === 0 ? (
-        <p className="text-sm text-slate-400">Belum ada pesanan.</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white py-10 text-center">
+          <Icon name="PackageOpen" size={28} className="text-slate-300" />
+          <p className="text-sm text-slate-400">Belum ada pesanan.</p>
+        </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {orders.map((o) => (
-            <div key={o.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3">
-              <div className="flex items-start gap-3">
-                {o.status === 'pending' && (
-                  <RotatingQr id={o.id} kind="order" initialToken={o.rotating_token ?? o.order_code} size={48} />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-slate-600">
+            <div key={o.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-slate-700">
                     {o.order_items?.map((i) => `${i.quantity}× ${i.product_name}`).join(', ')}
                   </p>
-                  <p className="font-mono text-xs text-slate-400">Ref: {o.order_code}</p>
+                  <p className="mt-0.5 font-mono text-xs text-slate-400">Ref: {o.order_code}</p>
                   <p className="text-xs text-slate-400">{new Date(o.created_at).toLocaleString('id-ID')}</p>
-                  {o.status === 'pending' && o.expires_at && (
-                    <p className="text-xs text-amber-600">Berlaku sampai {new Date(o.expires_at).toLocaleString('id-ID')}</p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${STATUS_STYLE[o.status]}`}
+                >
+                  {STATUS_LABEL[o.status]}
+                </span>
+              </div>
+
+              {o.status === 'pending' && (
+                <div className="flex items-center gap-3 rounded-xl bg-amber-50/60 p-3">
+                  <RotatingQr id={o.id} kind="order" initialToken={o.rotating_token ?? o.order_code} size={48} />
+                  {o.expires_at && (
+                    <p className="text-xs text-amber-700">
+                      Berlaku sampai<br />
+                      <span className="font-medium">{new Date(o.expires_at).toLocaleString('id-ID')}</span>
+                    </p>
                   )}
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold text-slate-700">{formatRupiah(o.total)}</p>
-                  <span className={`inline-block rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[o.status]}`}>
-                    {STATUS_LABEL[o.status]}
-                  </span>
-                </div>
+              )}
+
+              <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                <span className="text-xs text-slate-400">Total bayar di kasir</span>
+                <span className="text-sm font-semibold text-slate-800">{formatRupiah(o.total)}</span>
               </div>
             </div>
           ))}

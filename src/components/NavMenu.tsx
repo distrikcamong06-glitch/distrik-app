@@ -34,15 +34,15 @@ export default function NavMenu() {
   const menu = profile.role === 'admin' ? ADMIN_MENU : USER_MENU;
 
   return (
-    <nav className="flex gap-1 overflow-x-auto border-t border-slate-200 bg-white px-2 py-1.5 sm:justify-center">
+    <nav className="no-scrollbar flex gap-1 overflow-x-auto border-t border-slate-200 bg-white px-2 py-1.5 shadow-[0_-2px_8px_rgba(15,23,42,0.04)] sm:justify-center">
       {menu.map((item) => (
         <NavLink
           key={item.path}
           to={item.path}
           end
           className={({ isActive }) =>
-            `flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              isActive ? 'bg-brand-green-50 text-brand-green-700' : 'text-slate-500 hover:bg-slate-50'
+            `flex shrink-0 flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors ${
+              isActive ? 'bg-brand-green-50 text-brand-green-700' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
             }`
           }
         >

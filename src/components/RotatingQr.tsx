@@ -60,14 +60,14 @@ export default function RotatingQr({
   }, [id, kind]);
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex shrink-0 flex-col items-center gap-1" style={{ width: Math.max(size, 112) }}>
       <QrCode value={token} size={size} />
-      <p className="font-mono text-xs tracking-wider text-slate-600">{token}</p>
+      <p className="font-mono text-xs font-medium tracking-wider text-slate-700">{token}</p>
       {error ? (
         <p className="max-w-[220px] text-center text-[11px] text-red-500">{error}</p>
       ) : (
-        <p className="text-[11px] text-slate-400">
-          Kalau kamera susah scan, ketik kode di atas — berubah otomatis dalam {secondsLeft}s
+        <p className="text-center text-[10px] leading-snug text-slate-400">
+          Susah discan? Ketik kode di atas — berubah dalam {secondsLeft}s
         </p>
       )}
     </div>

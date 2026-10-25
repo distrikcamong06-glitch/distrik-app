@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useCart } from '../../contexts/CartContext';
 import { formatRupiah } from '../../lib/currency';
 import CartDrawer from '../../components/CartDrawer';
+import Icon from '../../components/Icon';
 import type { Product } from '../../types/database';
 
 export default function Products() {
@@ -43,34 +44,47 @@ export default function Products() {
       {loading ? (
         <p className="text-sm text-slate-400">Memuat produk...</p>
       ) : products.length === 0 ? (
-        <p className="text-sm text-slate-400">Belum ada produk tersedia.</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white py-10 text-center">
+          <Icon name="ShoppingBag" size={28} className="text-slate-300" />
+          <p className="text-sm text-slate-400">Belum ada produk tersedia.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {products.map((product) => {
             const outOfStock = product.stock !== null && product.stock <= 0;
             const inCart = quantityInCart(product.id);
             return (
-              <div key={product.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    loading="lazy"
-                    className="aspect-square w-full rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-slate-50 text-xs text-slate-300">
-                    Tanpa foto
-                  </div>
-                )}
+              <div
+                key={product.id}
+                className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="relative">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      loading="lazy"
+                      className="aspect-square w-full rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-slate-50 text-xs text-slate-300">
+                      Tanpa foto
+                    </div>
+                  )}
+                  {inCart > 0 && (
+                    <span className="absolute right-1.5 top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-green-600 px-1 text-[11px] font-bold text-white shadow">
+                      {inCart}
+                    </span>
+                  )}
+                </div>
                 <p className="truncate text-sm font-medium text-slate-800">{product.name}</p>
                 <p className="text-sm font-semibold text-brand-green-700">{formatRupiah(product.price)}</p>
                 <button
                   onClick={() => handleAdd(product)}
                   disabled={outOfStock}
-                  className="rounded-lg bg-brand-green-600 py-1.5 text-xs font-medium text-white hover:bg-brand-green-700 disabled:opacity-40"
+                  className="rounded-lg bg-brand-green-600 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-green-700 disabled:opacity-40"
                 >
-                  {outOfStock ? 'Stok Habis' : inCart > 0 ? `+ Tambah (${inCart} di keranjang)` : 'Tambah ke Keranjang'}
+                  {outOfStock ? 'Stok Habis' : inCart > 0 ? 'Tambah Lagi' : 'Tambah ke Keranjang'}
                 </button>
               </div>
             );

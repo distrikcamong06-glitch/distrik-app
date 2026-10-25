@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
+import Icon from '../../components/Icon';
 
 export default function Profile() {
   const { profile, session, refreshProfile } = useAuth();
@@ -42,20 +43,28 @@ export default function Profile() {
     if (!error) setNewPassword('');
   };
 
+  const initial = profile.name?.trim()?.[0]?.toUpperCase() ?? '?';
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold text-slate-800">Profil</h1>
-        <p className="text-sm text-slate-500">{session.user.email}</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-green-100 text-lg font-semibold text-brand-green-700">
+          {initial}
+        </div>
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold text-slate-800">{profile.name}</h1>
+          <p className="truncate text-sm text-slate-500">{session.user.email}</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-sm font-semibold text-slate-700">Data Diri</p>
         <label className="text-sm font-medium text-slate-600">
           Nama
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors focus:border-brand-green-500 focus:outline-none focus:ring-2 focus:ring-brand-green-100"
           />
         </label>
         <label className="text-sm font-medium text-slate-600">
@@ -63,7 +72,7 @@ export default function Profile() {
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors focus:border-brand-green-500 focus:outline-none focus:ring-2 focus:ring-brand-green-100"
           />
         </label>
         <label className="text-sm font-medium text-slate-600">
@@ -71,7 +80,7 @@ export default function Profile() {
           <input
             disabled
             value={profile.member_code}
-            className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400"
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-400"
           />
         </label>
         {message && <p className="text-sm text-brand-green-600">{message}</p>}
@@ -79,7 +88,7 @@ export default function Profile() {
         <button
           type="submit"
           disabled={saving}
-          className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
+          className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-green-700 disabled:opacity-60"
         >
           {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
@@ -87,9 +96,12 @@ export default function Profile() {
 
       <form
         onSubmit={handlePasswordChange}
-        className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5"
+        className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
       >
-        <p className="text-sm font-medium text-slate-600">Ganti Password</p>
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <Icon name="Lock" size={15} className="text-slate-400" />
+          Ganti Password
+        </p>
         <input
           type="password"
           required
@@ -97,13 +109,13 @@ export default function Profile() {
           placeholder="Password baru"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors focus:border-brand-green-500 focus:outline-none focus:ring-2 focus:ring-brand-green-100"
         />
         {pwMessage && <p className="text-sm text-slate-500">{pwMessage}</p>}
         <button
           type="submit"
           disabled={pwSaving}
-          className="rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          className="rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-60"
         >
           {pwSaving ? 'Menyimpan...' : 'Ganti Password'}
         </button>
