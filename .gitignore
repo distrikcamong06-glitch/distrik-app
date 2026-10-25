@@ -25,3 +25,4 @@ dist-ssr
 *.sw?
 distric-app.code-workspace
 img/
+ROLLBACK_wrong_project.sql
