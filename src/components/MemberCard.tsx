@@ -27,9 +27,9 @@ export function MemberCardBack({ memberCode }: { memberCode: string }) {
   return (
     <svg viewBox="0 0 1200 687" className="w-full rounded-2xl shadow-lg" xmlns="http://www.w3.org/2000/svg">
       <image href={memberCardBack} x={0} y={0} width={1200} height={687} preserveAspectRatio="xMidYMid slice" />
-      <rect x={445} y={160} width={300} height={300} rx={10} fill="#efe7d6" />
-      <svg x={455} y={170} width={280} height={280}>
-        <QRCodeSVG value={memberCode} size={280} level="M" bgColor="#efe7d6" fgColor="#163f24" />
+      <rect x={405} y={102} width={380} height={380} rx={10} fill="#efe7d6" />
+      <svg x={415} y={112} width={360} height={360}>
+        <QRCodeSVG value={memberCode} size={360} level="M" bgColor="#efe7d6" fgColor="#163f24" />
       </svg>
     </svg>
   );
