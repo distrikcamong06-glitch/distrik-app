@@ -9,7 +9,15 @@ import memberCardBack from '../assets/member-card-back.jpg';
 // SVG viewBox scaling keeps everything — image, text, QR — proportional
 // at any render size, from a 56px dashboard thumbnail up to a print page.
 
-export function MemberCardFront({ name, memberCode }: { name: string; memberCode: string }) {
+export function MemberCardFront({
+  name,
+  memberCode,
+  phone,
+}: {
+  name: string;
+  memberCode: string;
+  phone?: string | null;
+}) {
   return (
     <svg viewBox="0 0 1200 702" className="w-full rounded-2xl shadow-lg" xmlns="http://www.w3.org/2000/svg">
       <image href={memberCardFront} x={0} y={0} width={1200} height={702} preserveAspectRatio="xMidYMid slice" />
@@ -18,6 +26,12 @@ export function MemberCardFront({ name, memberCode }: { name: string; memberCode
       </text>
       <text x={89} y={538} fontSize={26} letterSpacing={2} fill="#cfc9bd" fontFamily="ui-monospace, monospace">
         {memberCode}
+      </text>
+      <text x={89} y={570} fontSize={15} letterSpacing={3} fill="#a7a195" fontFamily="system-ui, sans-serif">
+        NO HP
+      </text>
+      <text x={89} y={600} fontSize={22} letterSpacing={1} fill="#cfc9bd" fontFamily="ui-monospace, monospace">
+        {phone || '-'}
       </text>
     </svg>
   );
@@ -38,14 +52,16 @@ export function MemberCardBack({ memberCode }: { memberCode: string }) {
 export default function MemberCard({
   name,
   memberCode,
+  phone,
   side,
 }: {
   name: string;
   memberCode: string;
+  phone?: string | null;
   side: 'front' | 'back';
 }) {
   return side === 'front' ? (
-    <MemberCardFront name={name} memberCode={memberCode} />
+    <MemberCardFront name={name} memberCode={memberCode} phone={phone} />
   ) : (
     <MemberCardBack memberCode={memberCode} />
   );

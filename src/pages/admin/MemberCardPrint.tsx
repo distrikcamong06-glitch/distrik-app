@@ -44,7 +44,7 @@ export default function MemberCardPrint() {
 
       <div className="flex flex-col items-center gap-6 print:gap-4">
         <div className="w-full max-w-sm print:max-w-none print:w-[90mm]">
-          <MemberCardFront name={member.name} memberCode={member.member_code} />
+          <MemberCardFront name={member.name} memberCode={member.member_code} phone={member.phone} />
         </div>
         <div className="w-full max-w-sm print:max-w-none print:w-[90mm]">
           <MemberCardBack memberCode={member.member_code} />
