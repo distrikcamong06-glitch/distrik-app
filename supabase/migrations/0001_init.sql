@@ -899,6 +899,20 @@ create policy "promo_products_select_active_or_admin" on public.promo_products
 create policy "promo_products_admin_write" on public.promo_products
   for all using (public.is_admin()) with check (public.is_admin());
 
+-- Public landing page visibility: anyone (including logged-out visitors) can
+-- see promos that target "semua orang" (target_mode = 'all'). Targeted
+-- promos stay governed by is_promo_eligible() and are not broadcast publicly.
+create policy "promos_select_public_all_target" on public.promos
+  for select using (is_active = true and target_mode = 'all');
+
+create policy "promo_products_select_public_all_target" on public.promo_products
+  for select using (
+    exists (
+      select 1 from public.promos p
+      where p.id = promo_id and p.is_active = true and p.target_mode = 'all'
+    )
+  );
+
 create policy "promo_target_members_admin_all" on public.promo_target_members
   for all using (public.is_admin()) with check (public.is_admin());
 
