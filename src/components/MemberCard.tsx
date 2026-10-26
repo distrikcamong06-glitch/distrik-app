@@ -30,7 +30,7 @@ export function MemberCardFront({
       <text x={89} y={570} fontSize={15} letterSpacing={3} fill="#a7a195" fontFamily="system-ui, sans-serif">
         NO HP
       </text>
-      <text x={89} y={600} fontSize={22} letterSpacing={1} fill="#cfc9bd" fontFamily="ui-monospace, monospace">
+      <text x={89} y={603} fontSize={28} letterSpacing={1} fill="#cfc9bd" fontFamily="ui-monospace, monospace">
         {phone || '-'}
       </text>
     </svg>
