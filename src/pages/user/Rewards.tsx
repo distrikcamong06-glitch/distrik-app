@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
+import { checkPendingPickup, type PendingPickup } from '../../lib/pendingPickup';
 import type { PointRules, Reward } from '../../types/database';
 import RedeemSuccessModal from '../../components/RedeemSuccessModal';
 import Icon from '../../components/Icon';
@@ -21,10 +22,9 @@ export default function Rewards() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{
     rewardName: string;
-    redemptionId: string;
     redeemCode: string;
-    rotatingToken: string;
   } | null>(null);
+  const [pending, setPending] = useState<PendingPickup>(null);
 
   const loadRewards = async () => {
     if (!profile) return;
@@ -60,6 +60,11 @@ export default function Rewards() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
+  useEffect(() => {
+    if (!profile) return;
+    checkPendingPickup(profile.id).then(setPending);
+  }, [profile]);
+
   const handleRedeem = async (reward: Reward) => {
     setError(null);
     setRedeemingId(reward.id);
@@ -73,10 +78,9 @@ export default function Rewards() {
 
     setSuccess({
       rewardName: reward.name,
-      redemptionId: data.id,
       redeemCode: data.redeem_code,
-      rotatingToken: data.rotating_token,
     });
+    setPending({ type: 'redemption' });
     await Promise.all([loadRewards(), refreshProfile()]);
   };
 
@@ -97,6 +101,12 @@ export default function Rewards() {
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {pending && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
+          Kamu masih punya {pending.type === 'order' ? 'pesanan' : 'penukaran reward'} yang menunggu diambil. Ambil
+          dulu sebelum menukar reward lagi.
+        </p>
+      )}
       {dailyLimitReached && (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
           Kamu sudah mencapai batas penukaran reward hari ini. Coba lagi besok.
@@ -118,7 +128,7 @@ export default function Rewards() {
             const used = usedCounts[reward.id] ?? 0;
             const perRewardLimitReached = reward.max_per_user !== null && used >= reward.max_per_user;
             const disabled =
-              outOfStock || cantAfford || perRewardLimitReached || dailyLimitReached || redeemingId === reward.id;
+              outOfStock || cantAfford || perRewardLimitReached || dailyLimitReached || !!pending || redeemingId === reward.id;
             return (
               <div
                 key={reward.id}
@@ -164,9 +174,11 @@ export default function Rewards() {
                         ? 'Batas Tercapai'
                         : dailyLimitReached
                           ? 'Batas Harian Tercapai'
-                          : cantAfford
-                            ? 'Poin Tidak Cukup'
-                            : 'Tukar Sekarang'}
+                          : pending
+                            ? 'Ada Pesanan Menunggu'
+                            : cantAfford
+                              ? 'Poin Tidak Cukup'
+                              : 'Tukar Sekarang'}
                 </button>
               </div>
             );
@@ -177,9 +189,7 @@ export default function Rewards() {
       {success && (
         <RedeemSuccessModal
           rewardName={success.rewardName}
-          redemptionId={success.redemptionId}
           redeemCode={success.redeemCode}
-          rotatingToken={success.rotatingToken}
           onClose={() => setSuccess(null)}
         />
       )}

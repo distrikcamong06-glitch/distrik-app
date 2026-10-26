@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import NavMenu from './NavMenu';
 import Icon from './Icon';
@@ -21,11 +21,14 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-slate-50">
       {profile?.role === 'user' && <PromoPopup userId={profile.id} />}
 
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur">
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur print:hidden">
         <div className="flex min-w-0 items-center gap-2.5">
           <img src={logo} alt="Distrik Camong" className="h-8 w-auto shrink-0" />
           {profile && (
-            <div className="flex min-w-0 items-center gap-2 border-l border-slate-200 pl-2.5">
+            <Link
+              to="/profile"
+              className="flex min-w-0 items-center gap-2 rounded-lg border-l border-slate-200 py-1 pl-2.5 pr-2 transition-colors hover:bg-slate-50"
+            >
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-green-100 text-xs font-semibold text-brand-green-700">
                 {initial}
               </div>
@@ -35,7 +38,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   {profile.role === 'admin' ? 'Admin' : `${profile.points_balance} poin`}
                 </p>
               </div>
-            </div>
+            </Link>
           )}
         </div>
         <button
@@ -52,7 +55,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="mx-auto w-full max-w-2xl">{children}</div>
       </main>
 
-      <div className="sticky bottom-0 z-20">
+      <div className="sticky bottom-0 z-20 print:hidden">
         <NavMenu />
       </div>
     </div>

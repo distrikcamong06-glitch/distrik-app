@@ -67,7 +67,7 @@ export default function RedemptionHistory() {
 
               {r.status === 'pending' && (
                 <div className="flex items-center gap-3 rounded-xl bg-amber-50/60 p-3">
-                  <RotatingQr id={r.id} kind="redemption" initialToken={r.rotating_token ?? r.redeem_code} size={48} />
+                  <RotatingQr initialToken={r.redeem_code} size={48} />
                   {r.expires_at && (
                     <p className="text-xs text-amber-700">
                       Berlaku sampai<br />

@@ -4,15 +4,11 @@ import RotatingQr from './RotatingQr';
 
 export default function RedeemSuccessModal({
   rewardName,
-  redemptionId,
   redeemCode,
-  rotatingToken,
   onClose,
 }: {
   rewardName: string;
-  redemptionId: string;
   redeemCode: string;
-  rotatingToken: string;
   onClose: () => void;
 }) {
   return (
@@ -39,11 +35,10 @@ export default function RedeemSuccessModal({
         </div>
 
         <div className="rounded-xl border border-slate-200 p-4">
-          <RotatingQr id={redemptionId} kind="redemption" initialToken={rotatingToken} size={160} />
+          <RotatingQr initialToken={redeemCode} size={160} />
         </div>
-        <p className="font-mono text-xs tracking-wide text-slate-400">Ref: {redeemCode}</p>
         <p className="text-xs text-slate-400">
-          Tunjukkan QR ini ke kasir untuk ambil reward. Berlaku 24 jam, lalu otomatis hangus dan poin dikembalikan.
+          Tunjukkan QR ini ke kasir untuk ambil reward. Berlaku 2 jam, lalu otomatis hangus dan poin dikembalikan.
         </p>
 
         <button

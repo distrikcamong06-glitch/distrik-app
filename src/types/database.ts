@@ -5,6 +5,8 @@ export type RedemptionStatus = 'pending' | 'completed' | 'cancelled';
 export type LandingSection = 'promo' | 'gallery';
 export type OrderStatus = 'pending' | 'completed' | 'cancelled';
 export type DiscountType = 'percent' | 'fixed';
+export type PromoKind = 'discount' | 'bundle' | 'bogo';
+export type PromoTargetMode = 'all' | 'percent' | 'top_spenders' | 'new_users' | 'specific' | 'random';
 
 export interface Profile {
   id: string;
@@ -97,13 +99,23 @@ export interface Promo {
   title: string;
   description: string | null;
   image_url: string | null;
-  discount_type: DiscountType;
-  discount_value: number;
+  kind: PromoKind;
+  discount_type: DiscountType | null;
+  discount_value: number | null;
   min_order_amount: number | null;
-  max_uses_per_user: number;
+  max_uses_per_user: number | null;
+  bundle_price: number | null;
+  bogo_buy_product_id: string | null;
+  bogo_buy_qty: number;
+  bogo_get_product_id: string | null;
+  bogo_get_qty: number;
   is_active: boolean;
   starts_at: string | null;
   ends_at: string | null;
+  target_mode: PromoTargetMode;
+  target_percent: number | null;
+  target_count: number | null;
+  target_new_user_days: number | null;
   created_at: string;
 }
 

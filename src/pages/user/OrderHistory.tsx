@@ -70,7 +70,7 @@ export default function OrderHistory() {
 
               {o.status === 'pending' && (
                 <div className="flex items-center gap-3 rounded-xl bg-amber-50/60 p-3">
-                  <RotatingQr id={o.id} kind="order" initialToken={o.rotating_token ?? o.order_code} size={48} />
+                  <RotatingQr initialToken={o.order_code} size={48} />
                   {o.expires_at && (
                     <p className="text-xs text-amber-700">
                       Berlaku sampai<br />

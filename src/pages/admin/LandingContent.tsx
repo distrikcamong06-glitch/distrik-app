@@ -3,6 +3,8 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { compressImage } from '../../lib/compressImage';
 import type { LandingItem, LandingSection } from '../../types/database';
+import Modal from '../../components/Modal';
+import Icon from '../../components/Icon';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
@@ -21,6 +23,7 @@ const emptyForm = {
 export default function LandingContentAdmin() {
   const [items, setItems] = useState<LandingItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -41,6 +44,12 @@ export default function LandingContentAdmin() {
     loadItems();
   }, []);
 
+  const openAdd = () => {
+    setForm(emptyForm);
+    setError(null);
+    setFormOpen(true);
+  };
+
   const startEdit = (item: LandingItem) => {
     setForm({
       id: item.id,
@@ -52,6 +61,8 @@ export default function LandingContentAdmin() {
       order: String(item.order),
       is_active: item.is_active,
     });
+    setError(null);
+    setFormOpen(true);
   };
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -119,6 +130,7 @@ export default function LandingContentAdmin() {
       setError(error.message);
       return;
     }
+    setFormOpen(false);
     setForm(emptyForm);
     await loadItems();
   };
@@ -139,119 +151,18 @@ export default function LandingContentAdmin() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-lg font-semibold text-slate-800">Gambar & Promosi Landing Page</h1>
-        <p className="text-xs text-slate-500">Konten yang tampil di halaman depan (distrik-app.onrender.com).</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-semibold text-slate-800">Gambar & Promosi Landing Page</h1>
+          <p className="text-xs text-slate-500">Konten yang tampil di halaman depan (distrik-app.onrender.com).</p>
+        </div>
+        <button
+          onClick={openAdd}
+          className="flex shrink-0 items-center gap-1 rounded-full bg-brand-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-green-700"
+        >
+          <Icon name="Images" size={14} />+ Tambah
+        </button>
       </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4">
-        <p className="text-sm font-medium text-slate-600">{form.id ? 'Edit item' : 'Tambah item baru'}</p>
-
-        <div className="flex gap-2">
-          <label className="flex-1 text-sm text-slate-600">
-            <input
-              type="radio"
-              name="section"
-              checked={form.section === 'promo'}
-              onChange={() => setForm({ ...form, section: 'promo' })}
-            />{' '}
-            Promosi
-          </label>
-          <label className="flex-1 text-sm text-slate-600">
-            <input
-              type="radio"
-              name="section"
-              checked={form.section === 'gallery'}
-              onChange={() => setForm({ ...form, section: 'gallery' })}
-            />{' '}
-            Galeri
-          </label>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {form.image_url && (
-            <img
-              src={form.image_url}
-              alt=""
-              className="aspect-square h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
-            />
-          )}
-          <label className="flex-1 text-sm text-slate-600">
-            Gambar (wajib, maks 5MB)
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              onChange={handleImageUpload}
-              disabled={uploading}
-              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
-            />
-          </label>
-        </div>
-        {uploading && <p className="text-xs text-slate-400">Mengunggah gambar...</p>}
-
-        {form.section === 'promo' && (
-          <>
-            <input
-              placeholder="Judul promo (opsional)"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-            />
-            <textarea
-              placeholder="Deskripsi (opsional)"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-            />
-            <input
-              placeholder="Link tujuan kalau diklik (opsional)"
-              value={form.link_url}
-              onChange={(e) => setForm({ ...form, link_url: e.target.value })}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-            />
-          </>
-        )}
-
-        <div className="flex items-center gap-2">
-          <label className="text-sm text-slate-600">
-            Urutan
-            <input
-              type="number"
-              value={form.order}
-              onChange={(e) => setForm({ ...form, order: e.target.value })}
-              className="ml-2 w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-green-500 focus:outline-none"
-            />
-          </label>
-          <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
-            <input
-              type="checkbox"
-              checked={form.is_active}
-              onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-            />
-            Aktif
-          </label>
-        </div>
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={saving || uploading}
-            className="flex-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
-          >
-            {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Item'}
-          </button>
-          {form.id && (
-            <button
-              type="button"
-              onClick={() => setForm(emptyForm)}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600"
-            >
-              Batal
-            </button>
-          )}
-        </div>
-      </form>
 
       {loading ? (
         <p className="text-sm text-slate-400">Memuat...</p>
@@ -261,6 +172,104 @@ export default function LandingContentAdmin() {
           <ItemList title="Galeri" items={galleryItems} onEdit={startEdit} onDelete={handleDelete} onToggle={toggleItemActive} />
         </>
       )}
+
+      <Modal open={formOpen} title={form.id ? 'Edit Item' : 'Tambah Item Baru'} onClose={() => setFormOpen(false)}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <label className="flex-1 text-sm text-slate-600">
+              <input
+                type="radio"
+                name="section"
+                checked={form.section === 'promo'}
+                onChange={() => setForm({ ...form, section: 'promo' })}
+              />{' '}
+              Promosi
+            </label>
+            <label className="flex-1 text-sm text-slate-600">
+              <input
+                type="radio"
+                name="section"
+                checked={form.section === 'gallery'}
+                onChange={() => setForm({ ...form, section: 'gallery' })}
+              />{' '}
+              Galeri
+            </label>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {form.image_url && (
+              <img
+                src={form.image_url}
+                alt=""
+                className="aspect-square h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
+              />
+            )}
+            <label className="flex-1 text-sm text-slate-600">
+              Gambar (wajib, maks 5MB)
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={handleImageUpload}
+                disabled={uploading}
+                className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
+              />
+            </label>
+          </div>
+          {uploading && <p className="text-xs text-slate-400">Mengunggah gambar...</p>}
+
+          {form.section === 'promo' && (
+            <>
+              <input
+                placeholder="Judul promo (opsional)"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+              />
+              <textarea
+                placeholder="Deskripsi (opsional)"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+              />
+              <input
+                placeholder="Link tujuan kalau diklik (opsional)"
+                value={form.link_url}
+                onChange={(e) => setForm({ ...form, link_url: e.target.value })}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+              />
+            </>
+          )}
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-slate-600">
+              Urutan
+              <input
+                type="number"
+                value={form.order}
+                onChange={(e) => setForm({ ...form, order: e.target.value })}
+                className="ml-2 w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-green-500 focus:outline-none"
+              />
+            </label>
+            <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                checked={form.is_active}
+                onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+              />
+              Aktif
+            </label>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={saving || uploading}
+            className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
+          >
+            {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Item'}
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }
@@ -290,7 +299,7 @@ function ItemList({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3"
+              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <img

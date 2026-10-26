@@ -12,17 +12,19 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
 import Home from './pages/user/Home';
-import Barcode from './pages/user/Barcode';
 import Profile from './pages/user/Profile';
 import Rewards from './pages/user/Rewards';
 import RedemptionHistory from './pages/user/RedemptionHistory';
 import PointHistory from './pages/user/PointHistory';
 import Products from './pages/user/Products';
 import OrderHistory from './pages/user/OrderHistory';
+import PromoCheckout from './pages/user/PromoCheckout';
 
 import Dashboard from './pages/admin/Dashboard';
 import Scan from './pages/admin/Scan';
+import ScanCheckout from './pages/admin/ScanCheckout';
 import Members from './pages/admin/Members';
+import MemberCardPrint from './pages/admin/MemberCardPrint';
 import RewardsAdmin from './pages/admin/Rewards';
 import PointRulesAdmin from './pages/admin/PointRules';
 import Transactions from './pages/admin/Transactions';
@@ -31,6 +33,8 @@ import LandingContentAdmin from './pages/admin/LandingContent';
 import ProductsAdmin from './pages/admin/Products';
 import PromosAdmin from './pages/admin/Promos';
 import OrdersAdmin from './pages/admin/Orders';
+import Kelola from './pages/admin/Kelola';
+import Transaksi from './pages/admin/Transaksi';
 
 function AppEntry() {
   const { profile, loading } = useAuth();
@@ -59,10 +63,6 @@ export default function App() {
 
           {/* User */}
           <Route path="/home" element={<ProtectedRoute role="user">{withLayout(<Home />)}</ProtectedRoute>} />
-          <Route
-            path="/barcode"
-            element={<ProtectedRoute role="user">{withLayout(<Barcode />)}</ProtectedRoute>}
-          />
           <Route path="/profile" element={<ProtectedRoute>{withLayout(<Profile />)}</ProtectedRoute>} />
           <Route
             path="/rewards"
@@ -84,6 +84,10 @@ export default function App() {
             path="/orders/history"
             element={<ProtectedRoute role="user">{withLayout(<OrderHistory />)}</ProtectedRoute>}
           />
+          <Route
+            path="/promos/:id"
+            element={<ProtectedRoute role="user">{withLayout(<PromoCheckout />)}</ProtectedRoute>}
+          />
 
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute role="admin">{withLayout(<Dashboard />)}</ProtectedRoute>} />
@@ -92,8 +96,24 @@ export default function App() {
             element={<ProtectedRoute role="admin">{withLayout(<Scan />)}</ProtectedRoute>}
           />
           <Route
+            path="/admin/scan-checkout"
+            element={<ProtectedRoute role="admin">{withLayout(<ScanCheckout />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/kelola"
+            element={<ProtectedRoute role="admin">{withLayout(<Kelola />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/transaksi"
+            element={<ProtectedRoute role="admin">{withLayout(<Transaksi />)}</ProtectedRoute>}
+          />
+          <Route
             path="/admin/members"
             element={<ProtectedRoute role="admin">{withLayout(<Members />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/admin/members/:id/card"
+            element={<ProtectedRoute role="admin">{withLayout(<MemberCardPrint />)}</ProtectedRoute>}
           />
           <Route
             path="/admin/rewards"

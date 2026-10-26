@@ -4,6 +4,8 @@ import { supabase } from '../../lib/supabaseClient';
 import { compressImage } from '../../lib/compressImage';
 import { formatRupiah } from '../../lib/currency';
 import type { Product } from '../../types/database';
+import Modal from '../../components/Modal';
+import Icon from '../../components/Icon';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
@@ -21,6 +23,7 @@ const emptyForm = {
 export default function ProductsAdmin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -37,6 +40,12 @@ export default function ProductsAdmin() {
     loadProducts();
   }, []);
 
+  const openAdd = () => {
+    setForm(emptyForm);
+    setError(null);
+    setFormOpen(true);
+  };
+
   const startEdit = (product: Product) => {
     setForm({
       id: product.id,
@@ -47,6 +56,8 @@ export default function ProductsAdmin() {
       stock: product.stock === null ? '' : String(product.stock),
       is_active: product.is_active,
     });
+    setError(null);
+    setFormOpen(true);
   };
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +120,7 @@ export default function ProductsAdmin() {
       setError(error.message);
       return;
     }
+    setFormOpen(false);
     setForm(emptyForm);
     await loadProducts();
   };
@@ -136,93 +148,30 @@ export default function ProductsAdmin() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold text-slate-800">Kelola Produk</h1>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4">
-        <p className="text-sm font-medium text-slate-600">{form.id ? 'Edit produk' : 'Tambah produk baru'}</p>
-        <input
-          required
-          placeholder="Nama produk"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-        />
-        <textarea
-          placeholder="Deskripsi (opsional)"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-        />
-        <div className="flex items-center gap-3">
-          {form.image_url && (
-            <img src={form.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover" />
-          )}
-          <label className="flex-1 text-sm text-slate-600">
-            Gambar produk (opsional, maks 5MB)
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              onChange={handleImageUpload}
-              disabled={uploading}
-              className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
-            />
-          </label>
-        </div>
-        {uploading && <p className="text-xs text-slate-400">Mengunggah gambar...</p>}
-        <div className="flex gap-2">
-          <input
-            required
-            type="number"
-            min={1}
-            placeholder="Harga (Rp)"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-          />
-          <input
-            type="number"
-            min={0}
-            placeholder="Stok (kosong = unlimited)"
-            value={form.stock}
-            onChange={(e) => setForm({ ...form, stock: e.target.value })}
-            className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
-          />
-        </div>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            checked={form.is_active}
-            onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-          />
-          Aktif (tampil di katalog user)
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={saving || uploading}
-            className="flex-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
-          >
-            {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Produk'}
-          </button>
-          {form.id && (
-            <button
-              type="button"
-              onClick={() => setForm(emptyForm)}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600"
-            >
-              Batal
-            </button>
-          )}
-        </div>
-      </form>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-lg font-semibold text-slate-800">Kelola Produk</h1>
+        <button
+          onClick={openAdd}
+          className="flex items-center gap-1 rounded-full bg-brand-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-green-700"
+        >
+          <Icon name="ShoppingBag" size={14} />+ Tambah
+        </button>
+      </div>
 
       {loading ? (
         <p className="text-sm text-slate-400">Memuat...</p>
+      ) : products.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white py-10 text-center">
+          <Icon name="ShoppingBag" size={28} className="text-slate-300" />
+          <p className="text-sm text-slate-400">Belum ada produk. Tambah yang pertama.</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
           {products.map((product) => (
-            <div key={product.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
+            <div
+              key={product.id}
+              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+            >
               <div className="flex min-w-0 items-center gap-3">
                 {product.image_url ? (
                   <img
@@ -265,6 +214,75 @@ export default function ProductsAdmin() {
           ))}
         </div>
       )}
+
+      <Modal open={formOpen} title={form.id ? 'Edit Produk' : 'Tambah Produk Baru'} onClose={() => setFormOpen(false)}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <input
+            required
+            placeholder="Nama produk"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+          />
+          <textarea
+            placeholder="Deskripsi (opsional)"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+          />
+          <div className="flex items-center gap-3">
+            {form.image_url && (
+              <img src={form.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover" />
+            )}
+            <label className="flex-1 text-sm text-slate-600">
+              Gambar produk (opsional, maks 5MB)
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={handleImageUpload}
+                disabled={uploading}
+                className="mt-1 block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-green-700 hover:file:bg-brand-green-100"
+              />
+            </label>
+          </div>
+          {uploading && <p className="text-xs text-slate-400">Mengunggah gambar...</p>}
+          <div className="flex gap-2">
+            <input
+              required
+              type="number"
+              min={1}
+              placeholder="Harga (Rp)"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+            />
+            <input
+              type="number"
+              min={0}
+              placeholder="Stok (kosong = unlimited)"
+              value={form.stock}
+              onChange={(e) => setForm({ ...form, stock: e.target.value })}
+              className="w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-green-500 focus:outline-none"
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+            />
+            Aktif (tampil di katalog user)
+          </label>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={saving || uploading}
+            className="mt-1 rounded-lg bg-brand-green-600 py-2 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
+          >
+            {saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Tambah Produk'}
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }

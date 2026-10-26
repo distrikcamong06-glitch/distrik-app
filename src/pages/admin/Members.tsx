@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import type { PointTransaction, Profile } from '../../types/database';
 import ShareWhatsAppButton from '../../components/ShareWhatsAppButton';
+import Icon from '../../components/Icon';
 
 export default function Members() {
   const [members, setMembers] = useState<Profile[]>([]);
@@ -182,6 +184,14 @@ export default function Members() {
                     message={`Halo ${member.name}! Info poin Distrik Camong kamu:\nKode member: ${member.member_code}\nPoin saat ini: ${member.points_balance} poin`}
                     label="Kirim Info Poin ke WhatsApp"
                   />
+
+                  <Link
+                    to={`/admin/members/${member.id}/card`}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <Icon name="CreditCard" size={15} />
+                    Cetak Kartu Member
+                  </Link>
 
                   <div className="flex flex-col gap-2 rounded-lg bg-red-50 p-3">
                     <p className="text-xs font-medium text-slate-600">Kurangi poin (wajib isi alasan)</p>

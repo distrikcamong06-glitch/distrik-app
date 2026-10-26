@@ -54,7 +54,7 @@ export default function RedemptionsAdmin() {
       return;
     }
     if (!data) {
-      setMessage('Kode penukaran tidak ditemukan. Kalau ini dari scan QR, minta member buka lagi halamannya — kodenya berubah tiap 2 menit.');
+      setMessage('Kode penukaran tidak ditemukan. Mungkin sudah lebih dari 2 jam dan otomatis hangus.');
       return;
     }
 
@@ -65,7 +65,7 @@ export default function RedemptionsAdmin() {
       row.rotating_token_expires_at &&
       new Date(row.rotating_token_expires_at) < new Date()
     ) {
-      setMessage('Kode QR ini sudah kedaluwarsa (berubah tiap 2 menit) — minta member buka lagi halaman penukarannya untuk dapat kode baru.');
+      setMessage('Kode QR ini sudah kedaluwarsa.');
       return;
     }
 

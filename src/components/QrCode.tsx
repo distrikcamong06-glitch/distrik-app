@@ -3,8 +3,8 @@ import { QRCodeSVG } from 'qrcode.react';
 
 // Best-effort deterrents against casually saving/copying the code — browsers
 // don't expose any real way to block an actual screen-capture, so this is
-// just friction, not real protection. The rotating token (see RotatingQr) is
-// what actually makes a screenshot useless after a couple of minutes.
+// just friction, not real protection. The short 2h expiry on pending
+// redemptions/orders is what actually limits how useful a screenshot is.
 const noCopyProps = {
   onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
   style: { WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' } as React.CSSProperties,

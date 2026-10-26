@@ -52,7 +52,7 @@ export default function OrdersAdmin() {
       return;
     }
     if (!data) {
-      setMessage('Kode pesanan tidak ditemukan. Kalau ini dari scan QR, minta member buka lagi halamannya — kodenya berubah tiap 2 menit.');
+      setMessage('Kode pesanan tidak ditemukan. Mungkin sudah lebih dari 2 jam dan otomatis hangus.');
       return;
     }
 
@@ -63,7 +63,7 @@ export default function OrdersAdmin() {
       row.rotating_token_expires_at &&
       new Date(row.rotating_token_expires_at) < new Date()
     ) {
-      setMessage('Kode QR ini sudah kedaluwarsa (berubah tiap 2 menit) — minta member buka lagi halaman pesanannya untuk dapat kode baru.');
+      setMessage('Kode QR ini sudah kedaluwarsa.');
       return;
     }
 

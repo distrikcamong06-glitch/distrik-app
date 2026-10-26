@@ -25,6 +25,10 @@ import {
   Search,
   Star,
   Home as HomeIcon,
+  Layers,
+  Package,
+  CreditCard,
+  Printer,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 
@@ -54,6 +58,10 @@ const ICONS: Record<string, React.ComponentType<LucideProps>> = {
   Search,
   Star,
   Home: HomeIcon,
+  Layers,
+  Package,
+  CreditCard,
+  Printer,
 };
 
 interface IconProps extends Omit<LucideProps, 'name'> {

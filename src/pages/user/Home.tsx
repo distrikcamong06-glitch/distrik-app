@@ -2,19 +2,31 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import { formatRupiah } from '../../lib/currency';
 import Icon from '../../components/Icon';
-import type { LandingItem, Reward } from '../../types/database';
+import BarcodeDisplay from '../../components/BarcodeDisplay';
+import Countdown from '../../components/Countdown';
+import type { LandingItem, Promo, Reward } from '../../types/database';
 
 const QUICK_MENU = [
-  { label: 'Barcode', to: '/barcode', icon: 'QrCode' },
   { label: 'Tukar Poin', to: '/rewards', icon: 'Gift' },
   { label: 'Produk', to: '/products', icon: 'ShoppingBag' },
   { label: 'Profil', to: '/profile', icon: 'User' },
 ];
 
+type DashboardPromo = Promo & {
+  promo_products: { product_id: string; products: { name: string; image_url: string | null; price: number } }[];
+};
+
+function discountedPrice(price: number, promo: Promo): number {
+  const cut = promo.discount_type === 'percent' ? Math.floor((price * (promo.discount_value ?? 0)) / 100) : (promo.discount_value ?? 0);
+  return Math.max(price - cut, 0);
+}
+
 export default function Home() {
   const { profile } = useAuth();
   const [banner, setBanner] = useState<LandingItem | null>(null);
+  const [specialPromos, setSpecialPromos] = useState<DashboardPromo[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -28,6 +40,24 @@ export default function Home() {
       .order('created_at', { ascending: false })
       .limit(1)
       .then(({ data }) => setBanner((data as LandingItem[] | null)?.[0] ?? null));
+
+    supabase
+      .from('promos')
+      .select('*, promo_products(product_id, products(name, image_url, price))')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        const now = new Date();
+        const rows = (data as DashboardPromo[]) ?? [];
+        setSpecialPromos(
+          rows.filter((p) => {
+            if (p.promo_products.length === 0) return false;
+            if (p.starts_at && new Date(p.starts_at) > now) return false;
+            if (p.ends_at && new Date(p.ends_at) < now) return false;
+            return true;
+          })
+        );
+      });
   }, []);
 
   useEffect(() => {
@@ -52,10 +82,11 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-xl font-semibold text-slate-800">Hai, {profile.name.split(' ')[0]} 👋</p>
-          <p className="text-sm text-slate-500">Selamat datang di Distrik Camong</p>
+      <div className="flex items-center gap-3">
+        <BarcodeDisplay memberCode={profile.member_code} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xl font-semibold text-slate-800">Hai, {profile.name.split(' ')[0]} 👋</p>
+          <p className="truncate text-sm text-slate-500">Selamat datang di Distrik Camong</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand-green-50 px-3 py-1.5 text-sm font-semibold text-brand-green-700">
           <Icon name="Star" size={14} />
@@ -104,9 +135,111 @@ export default function Home() {
         </div>
       </div>
 
+      {specialPromos.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-semibold text-slate-700">Promo Spesial</p>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {specialPromos.map((promo) => {
+              const linkedProducts = promo.promo_products;
+              const thumb = promo.image_url ?? linkedProducts[0]?.products?.image_url ?? null;
+              // Only a plain per-item discount (1 product) sends members to the
+              // normal catalog+cart — every other kind (bundle, bogo, campaign)
+              // is a buy-this-exact-combo deal, so it gets its own direct-buy
+              // page instead of being mixed into the plain product grid.
+              const isDirectCheckout = !(promo.kind === 'discount' && linkedProducts.length === 1);
+              return (
+                <Link
+                  key={promo.id}
+                  to={isDirectCheckout ? `/promos/${promo.id}` : '/products'}
+                  className="w-44 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)]"
+                >
+                  <div className="relative">
+                    {thumb ? (
+                      <img src={thumb} alt={promo.title} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+                    ) : (
+                      <div className="flex aspect-[4/3] w-full items-center justify-center bg-brand-red/10 text-brand-red">
+                        <Icon name="Tag" size={24} />
+                      </div>
+                    )}
+                    <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-red px-2 py-0.5 text-[11px] font-bold text-white shadow">
+                      {promo.kind === 'bundle' && 'Bundle'}
+                      {promo.kind === 'bogo' && 'Gratis'}
+                      {promo.kind === 'discount' &&
+                        (promo.discount_type === 'percent' ? `-${promo.discount_value}%` : `-${formatRupiah(promo.discount_value ?? 0)}`)}
+                    </span>
+                  </div>
+                  <div className="p-2.5">
+                    <p className="truncate text-xs font-medium text-slate-700">{promo.title}</p>
+
+                    {promo.kind === 'bundle' && (
+                      <>
+                        <div className="mt-0.5 flex items-baseline gap-1.5">
+                          <span className="text-base font-bold text-brand-red">{formatRupiah(promo.bundle_price ?? 0)}</span>
+                          <span className="text-[11px] text-slate-400 line-through">
+                            {formatRupiah(linkedProducts.reduce((sum, lp) => sum + lp.products.price, 0))}
+                          </span>
+                        </div>
+                        <p className="truncate text-[11px] text-slate-400">{linkedProducts.length} produk sekaligus</p>
+                      </>
+                    )}
+
+                    {promo.kind === 'bogo' && (
+                      <>
+                        <p className="mt-0.5 text-base font-bold text-brand-red">
+                          Hemat{' '}
+                          {formatRupiah(
+                            (linkedProducts.find((lp) => lp.product_id === promo.bogo_get_product_id)?.products.price ?? 0) *
+                              promo.bogo_get_qty
+                          )}
+                        </p>
+                        <p className="truncate text-[11px] text-slate-400">
+                          Beli {promo.bogo_buy_qty}× gratis {promo.bogo_get_qty}×{' '}
+                          {linkedProducts.find((lp) => lp.product_id === promo.bogo_get_product_id)?.products?.name ?? ''}
+                        </p>
+                      </>
+                    )}
+
+                    {promo.kind === 'discount' && linkedProducts.length === 1 && (
+                      <>
+                        <div className="mt-0.5 flex items-baseline gap-1.5">
+                          <span className="text-base font-bold text-brand-red">
+                            {formatRupiah(discountedPrice(linkedProducts[0].products.price, promo))}
+                          </span>
+                          <span className="text-[11px] text-slate-400 line-through">
+                            {formatRupiah(linkedProducts[0].products.price)}
+                          </span>
+                        </div>
+                        <p className="truncate text-[11px] text-slate-400">{linkedProducts[0].products?.name}</p>
+                      </>
+                    )}
+
+                    {promo.kind === 'discount' && linkedProducts.length > 1 && (
+                      <>
+                        <p className="mt-0.5 text-base font-bold text-brand-red">
+                          Mulai{' '}
+                          {formatRupiah(Math.min(...linkedProducts.map((lp) => discountedPrice(lp.products.price, promo))))}
+                        </p>
+                        <p className="truncate text-[11px] text-slate-400">{linkedProducts.length} produk</p>
+                      </>
+                    )}
+
+                    {promo.ends_at && (
+                      <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-brand-red">
+                        <Icon name="History" size={11} />
+                        <Countdown target={promo.ends_at} />
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <p className="text-sm font-semibold text-slate-700">Menu</p>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {QUICK_MENU.map((item) => (
             <Link
               key={item.to}

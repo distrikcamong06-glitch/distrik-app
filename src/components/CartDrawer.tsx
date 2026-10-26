@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { formatRupiah } from '../lib/currency';
+import { checkPendingPickup, type PendingPickup } from '../lib/pendingPickup';
 import OrderSuccessModal from './OrderSuccessModal';
 import type { Order, Promo } from '../types/database';
 
@@ -16,14 +17,18 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successOrder, setSuccessOrder] = useState<Order | null>(null);
+  const [pending, setPending] = useState<PendingPickup>(null);
 
   useEffect(() => {
     if (!open || !profile) return;
     supabase
       .from('promos')
-      .select('*')
+      .select('*, promo_products(promo_id)')
       .eq('is_active', true)
-      .then(({ data }) => setAllPromos((data as Promo[]) ?? []));
+      .then(({ data }) => {
+        const rows = (data as (Promo & { promo_products: unknown[] })[]) ?? [];
+        setAllPromos(rows.filter((p) => p.promo_products.length === 0));
+      });
     supabase
       .from('promo_redemptions')
       .select('promo_id')
@@ -33,12 +38,13 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
         for (const row of data ?? []) counts[row.promo_id] = (counts[row.promo_id] ?? 0) + 1;
         setUsedCounts(counts);
       });
+    checkPendingPickup(profile.id).then(setPending);
   }, [open, profile]);
 
   const eligiblePromos = useMemo(() => {
     const now = new Date();
     return allPromos.filter((p) => {
-      if ((usedCounts[p.id] ?? 0) >= p.max_uses_per_user) return false;
+      if (p.max_uses_per_user !== null && (usedCounts[p.id] ?? 0) >= p.max_uses_per_user) return false;
       if (p.starts_at && new Date(p.starts_at) > now) return false;
       if (p.ends_at && new Date(p.ends_at) < now) return false;
       if (p.min_order_amount && subtotal < p.min_order_amount) return false;
@@ -51,8 +57,8 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
     ? Math.min(
         subtotal,
         selectedPromo.discount_type === 'percent'
-          ? Math.floor((subtotal * selectedPromo.discount_value) / 100)
-          : selectedPromo.discount_value
+          ? Math.floor((subtotal * (selectedPromo.discount_value ?? 0)) / 100)
+          : (selectedPromo.discount_value ?? 0)
       )
     : 0;
   const total = subtotal - discount;
@@ -73,6 +79,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
     }
 
     setSuccessOrder(data as Order);
+    setPending({ type: 'order' });
     clear();
     setSelectedPromoId(null);
   };
@@ -170,7 +177,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                       }`}
                     >
                       <span className="font-medium">{promo.title}</span> —{' '}
-                      {promo.discount_type === 'percent' ? `${promo.discount_value}%` : formatRupiah(promo.discount_value)}{' '}
+                      {promo.discount_type === 'percent' ? `${promo.discount_value}%` : formatRupiah(promo.discount_value ?? 0)}{' '}
                       off
                     </button>
                   ))}
@@ -198,10 +205,20 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                 <span>{formatRupiah(total)}</span>
               </div>
             </div>
+            <p className="mb-2 text-[11px] text-slate-400">
+              Kalau ada promo bundle/beli-gratis yang cocok, harga final bisa lebih murah lagi — dihitung otomatis
+              begitu pesanan dibuat.
+            </p>
+            {pending && (
+              <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                Kamu masih punya {pending.type === 'order' ? 'pesanan' : 'penukaran reward'} yang menunggu diambil.
+                Ambil dulu sebelum pesan lagi.
+              </p>
+            )}
             {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
             <button
               onClick={handlePlaceOrder}
-              disabled={placing}
+              disabled={placing || !!pending}
               className="w-full rounded-lg bg-brand-green-600 py-3 text-sm font-semibold text-white hover:bg-brand-green-700 disabled:opacity-60"
             >
               {placing ? 'Memproses...' : 'Pesan Sekarang'}

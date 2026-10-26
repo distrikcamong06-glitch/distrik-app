@@ -29,7 +29,7 @@ export default function OrderSuccessModal({ order, onClose }: { order: Order; on
         </div>
 
         <div className="rounded-xl border border-slate-200 p-4">
-          <RotatingQr id={order.id} kind="order" initialToken={order.rotating_token ?? order.order_code} size={160} />
+          <RotatingQr initialToken={order.order_code} size={160} />
         </div>
 
         <div className="w-full rounded-lg bg-slate-50 p-3 text-left text-sm">
@@ -46,7 +46,7 @@ export default function OrderSuccessModal({ order, onClose }: { order: Order; on
         </div>
 
         <p className="text-xs text-slate-400">
-          Berlaku 24 jam, lalu otomatis hangus dan stok dikembalikan kalau tidak diambil.
+          Berlaku 2 jam, lalu otomatis hangus dan stok dikembalikan kalau tidak diambil.
         </p>
 
         <button
